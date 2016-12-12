@@ -29,7 +29,7 @@ OPTS="-avrt --delete --no-motd"
 #
 echo "Downloading of repository data started at `date`"
 #
-VER="23 24"
+VER="24 25"
 ARCH="x86_64"
 #
 for i in $VER
@@ -39,29 +39,8 @@ do
    for j in $ARCH
    do
       echo;echo "Downloading F$i $j Cloud ..."
-      if [ $i -eq 21 ]
-      then
-         [ ! -d $FED_HOME/releases/$i/Cloud/Images/$j ] && mkdir -p     $FED_HOME/releases/$i/Cloud/Images/$j
-         rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Cloud/Images/$j/ $FED_HOME/releases/$i/Cloud/Images/$j
-      fi
-      if [ $i -eq 23 ]
-      then
-         [ ! -d $FED_HOME/releases/$i/Cloud/$j ] && mkdir -p     $FED_HOME/releases/$i/Cloud/$j
-         rsync $OPTS --exclude 'debug' rsync://$RHOST/$RBASE/releases/$i/Cloud/$j/ $FED_HOME/releases/$i/Cloud/$j
-      fi
-      if [ $i -eq 24 ]
-      then
-         [ ! -d $FED_HOME/releases/$i/CloudImages/$j ] && mkdir -p     $FED_HOME/releases/$i/CloudImages/$j
-         rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/CloudImages/$j/ $FED_HOME/releases/$i/CloudImages/$j
-      fi
-
-#
-      if [ $i -eq 23 ]
-      then
-         echo;echo "Downloading F$i $j Cloud_Atomic ..."
-	 [ ! -d $FED_HOME/releases/$i/Cloud_Atomic/$j ] && mkdir -p     $FED_HOME/releases/$i/Cloud_Atomic/$j
-         rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Cloud_Atomic/$j/ $FED_HOME/releases/$i/Cloud_Atomic/$j
-      fi
+      [ ! -d $FED_HOME/releases/$i/CloudImages/$j ] && mkdir -p     $FED_HOME/releases/$i/CloudImages/$j
+      rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/CloudImages/$j/ $FED_HOME/releases/$i/CloudImages/$j
 #
       echo;echo "Downloading F$i $j Docker ..."
       [ ! -d $FED_HOME/releases/$i/Docker/$j ] && mkdir -p     $FED_HOME/releases/$i/Docker/$j
@@ -78,20 +57,11 @@ do
       echo;echo "Downloading F$i $j Workstation ..."
       [ ! -d $FED_HOME/releases/$i/Workstation/$j ] && mkdir -p     $FED_HOME/releases/$i/Workstation/$j
       rsync --exclude 'debug' $OPTS rsync://$RHOST/$RBASE/releases/$i/Workstation/$j/ $FED_HOME/releases/$i/Workstation/$j
-   done
 #
-   echo;echo "Downloading F$i live CDs ..."
-   if [ $i -eq 23 ]
-   then
-      [ ! -d $FED_HOME/releases/$i/Live/$j ] &&     mkdir -p $FED_HOME/releases/$i/Live/$j 
-      rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Live/$j/ $FED_HOME/releases/$i/Live/$j
-   fi
-   if [ $i -eq 24 ]
-   then
+      echo;echo "Downloading F$i $j Spins ..."
       [ ! -d $FED_HOME/releases/$i/Spins/$j ] &&     mkdir -p $FED_HOME/releases/$i/Spins/$j
       rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Spins/$j/ $FED_HOME/releases/$i/Spins/$j
-   fi
-
+   done
 #
    for j in $ARCH
    do
