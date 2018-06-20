@@ -29,7 +29,7 @@ OPTS="-avrt --delete --no-motd"
 #
 echo "Downloading of repository data started at `date`"
 #
-VER="24 25"
+VER="27 28"
 ARCH="x86_64"
 #
 for i in $VER
@@ -39,54 +39,72 @@ do
    for j in $ARCH
    do
       echo;echo "Downloading F$i $j Cloud ..."
-      [ ! -d $FED_HOME/releases/$i/CloudImages/$j ] && mkdir -p     $FED_HOME/releases/$i/CloudImages/$j
-      rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/CloudImages/$j/ $FED_HOME/releases/$i/CloudImages/$j
+      if [ $i -eq 27 ]
+      then
+         CI="CloudImages"
+      else
+	 CI="Cloud"
+      fi
+      [ ! -d $FED_HOME/releases/$i/$CI/$j ] && mkdir -p $FED_HOME/releases/$i/$CI/$j
+      rsync --exclude 'debug' --exclude 'drpms' $OPTS rsync://$RHOST/$RBASE/releases/$i/$CI/$j/ $FED_HOME/releases/$i/$CI/$j
 #
       echo;echo "Downloading F$i $j Docker ..."
-      [ ! -d $FED_HOME/releases/$i/Docker/$j ] && mkdir -p     $FED_HOME/releases/$i/Docker/$j
-      rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Docker/$j/ $FED_HOME/releases/$i/Docker/$j
+      if [ $i -eq 27 ]
+      then
+	 DO="Docker"
+      else
+	 DO="Container"
+      fi
+      [ ! -d $FED_HOME/releases/$i/$DO/$j ] && mkdir -p $FED_HOME/releases/$i/$DO/$j
+      rsync --exclude 'debug' --exclude 'drpms' $OPTS rsync://$RHOST/$RBASE/releases/$i/$DO/$j/ $FED_HOME/releases/$i/$DO/$j
 #
       echo;echo "Downloading F$i $j Everything ..."
-      [ ! -d $FED_HOME/releases/$i/Everything/$j/os ] && mkdir -p     $FED_HOME/releases/$i/Everything/$j/os
-      rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Everything/$j/os/ $FED_HOME/releases/$i/Everything/$j/os/
+      [ ! -d $FED_HOME/releases/$i/Everything/$j/os ] && mkdir -p $FED_HOME/releases/$i/Everything/$j/os
+      rsync --exclude 'debug' --exclude 'drpms' $OPTS rsync://$RHOST/$RBASE/releases/$i/Everything/$j/os/ $FED_HOME/releases/$i/Everything/$j/os/
 #
       echo;echo "Downloading F$i $j Server ..."
-      [ ! -d $FED_HOME/releases/$i/Server/$j ] && mkdir -p     $FED_HOME/releases/$i/Server/$j
-      rsync --exclude 'debug' $OPTS rsync://$RHOST/$RBASE/releases/$i/Server/$j/ $FED_HOME/releases/$i/Server/$j
+      [ ! -d $FED_HOME/releases/$i/Server/$j ] && mkdir -p $FED_HOME/releases/$i/Server/$j
+      rsync --exclude 'debug' --exclude 'drpms' $OPTS rsync://$RHOST/$RBASE/releases/$i/Server/$j/ $FED_HOME/releases/$i/Server/$j
 #
       echo;echo "Downloading F$i $j Workstation ..."
-      [ ! -d $FED_HOME/releases/$i/Workstation/$j ] && mkdir -p     $FED_HOME/releases/$i/Workstation/$j
-      rsync --exclude 'debug' $OPTS rsync://$RHOST/$RBASE/releases/$i/Workstation/$j/ $FED_HOME/releases/$i/Workstation/$j
+      [ ! -d $FED_HOME/releases/$i/Workstation/$j ] && mkdir -p $FED_HOME/releases/$i/Workstation/$j
+      rsync --exclude 'debug' --exclude 'drpms' $OPTS rsync://$RHOST/$RBASE/releases/$i/Workstation/$j/ $FED_HOME/releases/$i/Workstation/$j
 #
       echo;echo "Downloading F$i $j Spins ..."
-      [ ! -d $FED_HOME/releases/$i/Spins/$j ] &&     mkdir -p $FED_HOME/releases/$i/Spins/$j
-      rsync $OPTS rsync://$RHOST/$RBASE/releases/$i/Spins/$j/ $FED_HOME/releases/$i/Spins/$j
+      [ ! -d $FED_HOME/releases/$i/Spins/$j ] && mkdir -p $FED_HOME/releases/$i/Spins/$j
+      rsync --exclude 'debug'  --exclude 'drpms' $OPTS rsync://$RHOST/$RBASE/releases/$i/Spins/$j/ $FED_HOME/releases/$i/Spins/$j
    done
 #
    for j in $ARCH
    do
       echo;echo "Downloading F$i $j updates ..."
-      [ ! -d  $FED_HOME/updates/$i/$j ] && mkdir -p                      $FED_HOME/updates/$i/$j
-      rsync $OPTS --exclude 'debug' rsync://$RHOST/$RBASE/updates/$i/$j/ $FED_HOME/updates/$i/$j/
+      if [ $i -eq 27 ]
+      then
+	 PH=""
+      else
+	 PH="Everything"
+      fi
+      [ ! -d  $FED_HOME/updates/$i/$PH/$j ] && mkdir -p $FED_HOME/updates/$i/$PH/$j
+      rsync $OPTS --exclude 'debug'  --exclude 'drpms' rsync://$RHOST/$RBASE/updates/$i/$PH/$j/ $FED_HOME/updates/$i/$PH/$j
    done
 #
    for j in $ARCH
    do
       echo;echo "Downloading F$i rpmfusion free $j Everything ..."
-      [ ! -d $FUS_HOME/free/fedora/releases/$i/Everything/$j/os ] && mkdir -p                                $FUS_HOME/free/fedora/releases/$i/Everything/$j/os
-      rsync $OPTS --exclude 'debug' rsync://$FHOST$FBASE/rpmfusion/free/fedora/releases/$i/Everything/$j/os/ $FUS_HOME/free/fedora/releases/$i/Everything/$j/os/
+      [ ! -d $FUS_HOME/free/fedora/releases/$i/Everything/$j/os ] && mkdir -p $FUS_HOME/free/fedora/releases/$i/Everything/$j/os
+      rsync $OPTS --exclude 'debug'  --exclude 'drpms' rsync://$FHOST$FBASE/rpmfusion/free/fedora/releases/$i/Everything/$j/os/ $FUS_HOME/free/fedora/releases/$i/Everything/$j/os/
 #
       echo;echo "Downloading F$i rpmfusion free $j updates ..."
-      [ ! -d $FUS_HOME/free/fedora/updates/$i/$j ] && mkdir -p                                $FUS_HOME/free/fedora/updates/$i/$j
-      rsync $OPTS --exclude 'debug' rsync://$FHOST$FBASE/rpmfusion/free/fedora/updates/$i/$j/ $FUS_HOME/free/fedora/updates/$i/$j/
+      [ ! -d $FUS_HOME/free/fedora/updates/$i/$j ] && mkdir -p $FUS_HOME/free/fedora/updates/$i/$j
+      rsync $OPTS --exclude 'debug'  --exclude 'drpms' rsync://$FHOST$FBASE/rpmfusion/free/fedora/updates/$i/$j/ $FUS_HOME/free/fedora/updates/$i/$j/
 #
       echo;echo "Downloading F$i rpmfusion nonfree $j Everything ..."
-      [ ! -d $FUS_HOME/nonfree/fedora/releases/$i/Everything/$j/os ] && mkdir -p                                $FUS_HOME/nonfree/fedora/releases/$i/Everything/$j/os
-      rsync $OPTS --exclude 'debug' rsync://$FHOST$FBASE/rpmfusion/nonfree/fedora/releases/$i/Everything/$j/os/ $FUS_HOME/nonfree/fedora/releases/$i/Everything/$j/os/
+      [ ! -d $FUS_HOME/nonfree/fedora/releases/$i/Everything/$j/os ] && mkdir -p $FUS_HOME/nonfree/fedora/releases/$i/Everything/$j/os
+      rsync $OPTS --exclude 'debug'  --exclude 'drpms' rsync://$FHOST$FBASE/rpmfusion/nonfree/fedora/releases/$i/Everything/$j/os/ $FUS_HOME/nonfree/fedora/releases/$i/Everything/$j/os/
 #
       echo;echo "Downloading F$i rpmfusion nonfree $j updates ..."
-      [ ! -d $FUS_HOME/nonfree/fedora/updates/$i/$j ] && mkdir -p                                $FUS_HOME/nonfree/fedora/updates/$i/$j
-      rsync $OPTS --exclude 'debug' rsync://$FHOST$FBASE/rpmfusion/nonfree/fedora/updates/$i/$j/ $FUS_HOME/nonfree/fedora/updates/$i/$j/
+      [ ! -d $FUS_HOME/nonfree/fedora/updates/$i/$j ] && mkdir -p $FUS_HOME/nonfree/fedora/updates/$i/$j
+      rsync $OPTS --exclude 'debug'  --exclude 'drpms' rsync://$FHOST$FBASE/rpmfusion/nonfree/fedora/updates/$i/$j/ $FUS_HOME/nonfree/fedora/updates/$i/$j/
    done
 done
 #
