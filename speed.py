@@ -36,11 +36,20 @@ def main(argv):
     
     for opt, arg in opts:
         if opt == '-d':
-            down = float(arg)
+            try:
+                down = float(arg)
+            except:
+                exit(-1)
         elif opt == '-u':
-            up = float(arg)
+            try:
+                up = float(arg)
+            except:
+                exit(-1)
         elif opt == '-p':
-            ping = float(arg)
+            try:
+                ping = float(arg)
+            except:
+                exit(-1)
 
     timenow =  int(time.mktime(time.localtime()))
 
