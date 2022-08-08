@@ -1,0 +1,17 @@
+/albumdb.dat
+album.dat*
+photos.dat*
+serial.*.*
+desktop.ini
+/backups/**
+/cache/**
+/.htaccess
+/install*.log
+/upgrade*.log
+/locale/**
+/locks/**
+/plugins_data/**
+/smarty/**
+/tmp/**
+/.users/**
+/versions.dat
