@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #setup
-host='localhost'
-port='8181'
+host="localhost"
+port="8181"
 #idx for download, upload and ping
 idxdl=71
 idxul=72
@@ -14,10 +14,10 @@ idxbb=74
 
 # no need to edit
 # speedtest-cli --simple --server $serverst > outst.txt
-output='/tmp/speedtest.txt'
+output="/tmp/speedtest-$$.txt"
 #speedtest-cli --server 31861 --simple > $output
 #speedtest-cli --simple > $output
-speedtest-cli > $output
+speedtest-cli --secure > $output
 
 download=$(cat $output | sed -ne 's/^Download: \([0-9]*\.[0-9]*\).*/\1/p')
 upload=$(cat $output | sed -ne 's/^Upload: \([0-9]*\.[0-9]*\).*/\1/p')
@@ -46,3 +46,5 @@ wget -q --delete-after "http://$host:$port/json.htm?type=command&param=udevice&i
 wget -q --delete-after "http://$host:$port/json.htm?type=command&param=addlogmessage&message=speedtest.net-logging" >/dev/null 2>&1
 #
 python /usr/local/bin/speed.py -d "$download" -u "$upload" -p "$png"
+#
+/bin/rm $output
