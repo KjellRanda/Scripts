@@ -1,0 +1,19 @@
+docker network create --driver bridge influxdb-telegraf-net
+docker run -d --name=influxdb -p 8086:8086 --restart=always --net=influxdb-telegraf-net --ip 172.19.0.3 -v C:/ProgramData/InfluxDB:/var/lib/influxdb influxdb:1.8
+docker run -d --name=telegraf --restart=always --net=influxdb-telegraf-net --ip 172.19.0.2 -v C:/ProgramData/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf telegraf
+docker run -d --name=grafana --restart=always -p 3000:3000 --net=influxdb-telegraf-net --ip 172.19.0.5 -v C:/ProgramData/grafana:/var/lib/grafana grafana/grafana
+docker run -d --name mynodered --restart=always -p 1880:1880 --net=influxdb-telegraf-net --ip 172.19.0.6 -v C:/ProgramData/NodeRed:/data nodered/node-red
+
+docker run -d --name=python --restart=always --net=influxdb-telegraf-net --ip 172.19.0.4 -v C:/ProgramData/python:/usr/local/python python
+
+docker network inspect influxdb-telegraf-net 
+
+
+  topics = [
+      "pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1",
+      "pt:j1/mt:evt/rt:app/rn:energy_guard/ad:1",
+      "pt:j1/mt:evt/rt:dev/rn:zw/ad:1/sv:meter_elec/ad:6_0",
+      "pt:j1/mt:evt/rt:dev/rn:zw/ad:1/sv:meter_elec/ad:7_0",
+      "pt:j1/mt:evt/rt:dev/rn:zw/ad:1/sv:sensor_power/ad:6_0",
+      "pt:j1/mt:evt/rt:dev/rn:zw/ad:1/sv:sensor_power/ad:7_0",
+   ]
