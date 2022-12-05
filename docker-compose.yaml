@@ -1,0 +1,27 @@
+version: '2'
+services:
+    portainer-ce:
+        ports:
+            - '9443:9443/tcp'
+            - '9000:9000/tcp'
+            - '8000:8000/tcp'
+        environment:
+            - TZ=Europe/Oslo
+        container_name: portainer
+        restart: unless-stopped
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock'
+            - '/opt/portainer/data:/data/portainer'
+            - '/etc/localtime:/etc/localtime:ro'
+        image: 'portainer/portainer-ce:latest'
+
+    home-assistant:
+        container_name: homeassistant
+        privileged: true
+        restart: unless-stopped
+        environment:
+            - TZ=Europe/Oslo
+        volumes:
+            - '/data/homeassistant:/config'
+        network_mode: host
+        image: 'ghcr.io/home-assistant/home-assistant:stable'
