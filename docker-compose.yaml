@@ -11,7 +11,7 @@ services:
         restart: unless-stopped
         volumes:
             - '/var/run/docker.sock:/var/run/docker.sock'
-            - '/opt/portainer/data:/data/portainer'
+            - '/data/portainer:/data'
             - '/etc/localtime:/etc/localtime:ro'
         image: 'portainer/portainer-ce:latest'
 
@@ -25,3 +25,20 @@ services:
             - '/data/homeassistant:/config'
         network_mode: host
         image: 'ghcr.io/home-assistant/home-assistant:stable'
+        depends_on:
+            - mosquitto
+
+    mosquitto:
+        container_name: mosquitto
+        image: eclipse-mosquitto
+        restart: unless-stopped
+        ports:
+            - "1883:1883/tcp"
+        environment:
+            - TZ=Europe/Oslo
+        volumes:
+            - '/data/mosquitto/config:/mosquitto/config'
+            - '/data/mosquitto/data:/mosquitto/data'
+            - '/data/mosquitto/log:/mosquitto/log'
+        stdin_open: true
+        tty: true
