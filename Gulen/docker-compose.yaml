@@ -1,0 +1,135 @@
+version: '3.8'
+services:
+    portainer-ce:
+        ports:
+            - '9000:9000'
+            - '9443:9443'
+            - '8000:8000'
+        environment:
+            - 'TZ=Europe/Oslo'
+        container_name: portainer
+        restart: unless-stopped
+        volumes:
+            - '/var/run/docker.sock:/var/run/docker.sock'
+            - '/data/portainer:/data'
+            - '/etc/localtime:/etc/localtime:ro'
+        image: 'portainer/portainer-ce:latest'
+        networks:
+            default:
+                ipv4_address: 10.10.0.10
+
+    kapacitor:
+        container_name: kapacitor
+        restart: unless-stopped
+        ports:
+            - '9092:9092'
+        volumes:
+            - '/data/kapacitor/kapacitor.conf:/etc/kapacitor/kapacitor.conf:ro'
+            - '/data/kapacitor/lib:/var/lib/kapacitor'
+        environment:
+            - 'KAPACITOR_INFLUXDB_0_URLS_0=http://influxdb:8086'
+            - 'TZ=Europe/Oslo'
+        image: kapacitor
+        networks:
+            default:
+                ipv4_address: 10.10.0.8
+        depends_on:
+            - influxdb
+            - chronograf
+
+    chronograf:
+        command:
+            - '--influxdb-url=http://influxdb:8086'
+        container_name: chronograf
+        restart: unless-stopped
+        ports:
+            - '8888:8888'
+        volumes:
+            - '/data/chronograf:/var/lib/chronograf'
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: chronograf
+        networks:
+            default:
+                ipv4_address: 10.10.0.7
+        depends_on:
+            - influxdb
+
+    node-red:
+        container_name: mynodered
+        restart: unless-stopped
+        ports:
+            - '1880:1880'
+        volumes:
+            - '/data/nodered:/data'
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: nodered/node-red
+        networks:
+            default:
+                ipv4_address: 10.10.0.6
+        depends_on:
+            - influxdb
+
+    grafana:
+        container_name: grafana
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        volumes:
+            - '/data/grafana:/var/lib/grafana'
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: grafana/grafana
+        networks:
+            default:
+                ipv4_address: 10.10.0.5
+        depends_on:
+            - influxdb
+
+    influxdb:
+        container_name: influxdb
+        ports:
+            - '8086:8086'
+        restart: unless-stopped
+        volumes:
+            - '/data/influxdb:/var/lib/influxdb'
+            - '/data/influxdb_backup:/opt'
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: 'influxdb:1.8'
+        networks:
+            default:
+                ipv4_address: 10.10.0.3
+
+    telegraf:
+        container_name: telegraf
+        restart: 'no'
+        volumes:
+            - '/data/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf'
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: telegraf
+        networks:
+            default:
+                ipv4_address: 10.10.0.2
+
+    duplicati:
+        container_name: duplicati
+        image: duplicati/duplicati
+        restart: unless-stopped
+        ports:
+            - '8200:8200/tcp'
+        environment:
+            - 'TZ=TZ=Europe/Oslo'
+        volumes:
+            - '/data/duplicati/data:/data'
+            - '/data:/source:ro'
+        networks:
+            default:
+                ipv4_address: 10.10.0.9
+
+networks:
+  default:
+    name: influxdb-telegraf-net
+    external: true
