@@ -40,7 +40,7 @@ sdate = str(year) + "-" + str(month) + "-01T00:00:01Z"
 client = InfluxDBClient(host='localhost', port='8086', database='hansensor')
 
 SQL = "SELECT INTEGRAL(\"mean\")/3600 FROM ( SELECT MEAN(\"val\") AS mean FROM \"mqtt_consumer\" " + \
-      "WHERE \"topic\" = \'pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1\' AND \"val\" < 20000 AND time <= now() and time >= \'" + \
+      "WHERE \"topic\" = \'pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1\' AND \"unit\" = \'W\' AND time <= now() and time >= \'" + \
        sdate + "\' GROUP BY time(5s) fill(previous) ) GROUP BY time(1h)"
 result = client.query(SQL)
 
