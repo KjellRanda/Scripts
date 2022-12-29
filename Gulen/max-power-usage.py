@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import sys
 import time
 import logging
 from influxdb import InfluxDBClient
@@ -35,7 +36,8 @@ def main():
     Find 3 hours each month with highest energy usage
     Store values in Influxdb
     """
-    logging.basicConfig(filename='maxusage.log', filemode='a', datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='maxusage.log', filemode='a', datefmt='%Y-%m-%d %H:%M:%S', \
+                        level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logging.info('Processing starting ...')
 
     arr = []
@@ -45,14 +47,14 @@ def main():
 
     year = datetime.now().year
     month = datetime.now().month
-    SDATE = str(year) + "-" + str(month) + "-01T00:00:01Z"
+    s_date = str(year) + "-" + str(month) + "-01T00:00:01Z"
 
     client = InfluxDBClient(host='localhost', port='8086', database='hansensor')
 
-    SQL = "SELECT INTEGRAL(\"mean\")/3600 FROM ( SELECT MEAN(\"val\") AS mean FROM \"mqtt_consumer\" " + \
+    c_sql = "SELECT INTEGRAL(\"mean\")/3600 FROM ( SELECT MEAN(\"val\") AS mean FROM \"mqtt_consumer\" " + \
           "WHERE \"topic\" = \'pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1\' AND \"unit\" = \'W\' AND time <= now() and time >= \'" + \
-           SDATE + "\' GROUP BY time(5s) fill(previous) ) GROUP BY time(1h)"
-    result = client.query(SQL)
+           s_date + "\' GROUP BY time(5s) fill(previous) ) GROUP BY time(1h)"
+    result = client.query(c_sql)
 
     num = 0
     points = result.get_points()
@@ -61,9 +63,9 @@ def main():
         num = num + 1
 
     if num <= 3:
-        logging.warning("Not enough data to contine. Only " + str(num) + " found")
+        logging.warning("Not enough data to contine. Only %s found", str(num))
         client.close()
-        exit(1)
+        sys.exit(1)
 
     arr.sort(reverse=True)
 
@@ -85,4 +87,4 @@ def main():
     logging.info('Processing finished ...')
 
 if __name__ == "__main__":
-   main()
+    main()
