@@ -1,9 +1,10 @@
-
+#pylint: disable=missing-module-docstring
+#pylint: disable=invalid-name
 from datetime import datetime
 import sys
 import time
 import logging
-from influxdb import InfluxDBClient
+from influxdb import InfluxDBClient #pylint: disable=import-error
 
 def datetime_from_utc_to_local(utc):
     """
@@ -31,7 +32,7 @@ def influx_json(val, timev, typev):
     ]
     return json_body
 
-def main():
+def main(): #pylint: disable=too-many-locals
     """
     Find 3 hours each month with highest energy usage
     Store values in Influxdb
@@ -50,7 +51,7 @@ def main():
     s_date = str(year) + "-" + str(month) + "-01T00:00:01Z"
 
     client = InfluxDBClient(host='localhost', port='8086', database='hansensor')
-
+#pylint: disable=line-too-long
     c_sql = "SELECT INTEGRAL(\"mean\")/3600 FROM ( SELECT MEAN(\"val\") AS mean FROM \"mqtt_consumer\" " + \
           "WHERE \"topic\" = \'pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1\' AND \"unit\" = \'W\' AND time <= now() and time >= \'" + \
            s_date + "\' GROUP BY time(5s) fill(previous) ) GROUP BY time(1h)"
