@@ -1,5 +1,4 @@
-#pylint: disable=missing-module-docstring
-#pylint: disable=invalid-name
+""" Determine high power usage hours""" #pylint: disable=invalid-name
 from datetime import datetime
 import sys
 import time
@@ -72,7 +71,7 @@ def main(): #pylint: disable=too-many-locals
 
     sumu = 0.0
     for i in range(3):
-        x, s = arr[i]
+        x, s = arr[i] #pylint: disable=invalid-name
         pusage.append(x/1000)
         ustime.append(datetime_from_utc_to_local(s))
         sumu = sumu + pusage[i]

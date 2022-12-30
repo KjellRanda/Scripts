@@ -9,10 +9,10 @@ def timemark(timestamp):
     date = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z").date()
     time = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f%z").time()
 
-    dt = datetime.combine(date, time) #pylint: disable=invalid-name
-    msepoc = int((mktime(dt.timetuple()) + dt.microsecond/1000000.0)*1000)
+    dt0 = datetime.combine(date, time)
+    msepoc = int((mktime(dt0.timetuple()) + dt0.microsecond/1000000.0)*1000)
 
-    return dt, msepoc
+    return dt0, msepoc
 
 def print_pdata(jdata, report, dt0, msepoc):
     """ Print ampere and volt values """
@@ -41,15 +41,15 @@ def on_message(m_client, userdata, msg): #pylint: disable=unused-argument
     data = json.loads(msg.payload)
     report = data["type"]
     timestamp = data["ctime"]
-    (dt, msepoc) = timemark(timestamp) #pylint: disable=invalid-name
+    (dt0, msepoc) = timemark(timestamp)
 
     if report == "evt.meter.report":
         power = float(data["val"])
         unit = data["props"]["unit"]
-        print(f'{report} \t{dt} \t{msepoc} \t{power:7.1f}{unit}')
+        print(f'{report} \t{dt0} \t{msepoc} \t{power:7.1f}{unit}')
 
     if report == "evt.meter_ext.report":
-        print_pdata(data, report, dt, msepoc)
+        print_pdata(data, report, dt0, msepoc)
 
 client = mqtt.Client("mqtt-test")
 client.on_connect = on_connect
