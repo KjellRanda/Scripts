@@ -1,16 +1,19 @@
+""" Okoola speed test """
+import sys
+import getopt
+import time
+from influxdb import InfluxDBClient #pylint: disable=import-error
 
-import sys, getopt, time
-from influxdb import InfluxDBClient
-
-def db_data(serie, type, measure, value, time):
+def db_data(serie, atype, measure, value, atime):
+    """ Write data to Influxdb in line format """
     message = [
                 {
                     "measurement": serie,
                     "tags" : {
-                        "type": type,
+                        "type": atype,
                         "measurement": measure
                             },
-                            "time": time*1000000000,
+                            "time": atime*1000000000,
                             "fields": {
                                     "value": value*1.0
                                     }
@@ -19,37 +22,37 @@ def db_data(serie, type, measure, value, time):
     return message
 
 def main(argv):
-
+    """ Control writing of Okoola speed measurements to Influxdb """
     if len(argv) != 6:
         print ('speed.py -d download -u upload -p ping')
         sys.exit(2)
 
     down = 0.0
-    up   = 0.0
+    upl  = 0.0
     ping = 0.0
 
     try:
         opts, args = getopt.getopt(argv,"d:u:p:")
     except getopt.GetoptError:
-       print ('speed.py -d download -u upload -p ping')
-       sys.exit(2)
-    
+        print ('speed.py -d download -u upload -p ping')
+        sys.exit(2)
+
     for opt, arg in opts:
         if opt == '-d':
             try:
                 down = float(arg)
-            except:
-                exit(-1)
+            except ValueError:
+                sys.exit(-1)
         elif opt == '-u':
             try:
-                up = float(arg)
-            except:
-                exit(-1)
+                upl = float(arg)
+            except ValueError:
+                sys.exit(-1)
         elif opt == '-p':
             try:
                 ping = float(arg)
-            except:
-                exit(-1)
+            except ValueError:
+                sys.exit(-1)
 
     timenow =  int(time.mktime(time.localtime()))
 
@@ -63,12 +66,11 @@ def main(argv):
     message = db_data('speedtest', 'Ookla', 'download', down, timenow)
     client.write_points(message)
 
-    message = db_data('speedtest', 'Ookla', 'upload', up, timenow)
+    message = db_data('speedtest', 'Ookla', 'upload', upl, timenow)
     client.write_points(message)
 
     message = db_data('speedtest', 'Ookla', 'ping', ping, timenow)
     client.write_points(message)
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
-
+    main(sys.argv[1:])
