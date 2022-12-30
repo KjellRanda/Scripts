@@ -32,7 +32,7 @@ def main(argv):
     ping = 0.0
 
     try:
-        opts, args = getopt.getopt(argv,"d:u:p:")
+        opts, args = getopt.getopt(argv,"d:u:p:") #pylint: disable=unused-variable
     except getopt.GetoptError:
         print ('speed.py -d download -u upload -p ping')
         sys.exit(2)
