@@ -18,6 +18,6 @@ fi
 #
 dirdate=$(date +'%d.%m.%Y')
 #
-docker exec -t "$ID" mkdir /opt/$dirdate
+docker exec -t "$ID" mkdir /opt/$#dirdate#
 docker exec -t "$ID" influxd backup --portable /opt/"$dirdate"
 #
