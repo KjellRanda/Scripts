@@ -47,7 +47,7 @@ def main(): #pylint: disable=too-many-locals
 
     year = datetime.now().year
     month = datetime.now().month
-    s_date = str(year) + "-" + str(month) + "-01T00:00:01Z"
+    s_date = str(year) + "-" + str(f"{month:02d}") + "-01T00:00:01Z"
 
     client = InfluxDBClient(host='localhost', port='8086', database='hansensor')
 #pylint: disable=line-too-long
