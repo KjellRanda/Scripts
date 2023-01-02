@@ -11,7 +11,7 @@ usage()
     exit 1
 }
 #
-[ $# -ne 1 -a $# -ne 2 ] && usage
+[ $# -ne 1 ] && [ $# -ne 2 ] && usage
 #
 nc=$(docker ps | grep -c "$1")
 if [ "$nc" -eq 1 ]
