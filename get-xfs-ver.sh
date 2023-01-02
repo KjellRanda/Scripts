@@ -13,6 +13,6 @@ do
 	else
 		dev=$(ls -la "$i" | awk '{print $11}' | sed 's/..\///')
 	fi
-	ver=$(grep XFS /var/log/messages | grep Mounting | grep \($dev\) | cut -d"(" -f2 | sort -u | awk '{print $3}')
+	ver=$(grep XFS /var/log/messages | grep Mounting | grep \("$dev"\) | cut -d"(" -f2 | sort -u | awk '{print $3}')
 	printf "%-20s  %-9s %-8s\n" "$mnt" "$dev" "$ver"
 done 
