@@ -157,10 +157,40 @@ services:
         environment:
             - TZ=Europe/Oslo
         env_file:
-            - notification.env
+            - notification.env 
         networks:
             default:
                 ipv4_address: 10.10.0.4
+
+    myuplink:
+        container_name: myuplink
+        image: myuplinksmartconnect
+        restart: unless-stopped
+        hostname: myuplink
+        environment:
+            - TZ=Europe/Oslo
+            - IsInsideDocker=1
+            - CheckRemoteStatsIntervalInMinutes=1
+            - WaterHeaterMaxPowerInHours=5
+            - WaterHeaterMediumPowerInHours=8
+            - MediumPowerTargetTemperature=50
+            - HighPowerTargetTemperature=75
+            - ChangeSchedule=true
+            - PowerZone=NO5
+            - EnergiBasedCostSaving=false
+            - EnergiBasedPeakTimes=weekday6,weekend8
+#            - MQTTServer=""
+#            - MQTTServerPort=1883
+#Remove comment from below line for extended logging
+            - LogLevel=Debug
+        env_file:
+            - hoiax.env 
+        networks:
+            default:
+                ipv4_address: 10.10.0.11
+        labels: 
+            - "com.centurylinklabs.watchtower.enable=false"
+
 networks:
   default:
     name: influxdb-telegraf-net
