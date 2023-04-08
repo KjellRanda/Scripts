@@ -37,7 +37,7 @@ if [ $N_FILES -ge $MIN_FILES ]
 then
    find $BACKUP_HOME -maxdepth 1 -type d -mtime $MAX_AGE | while read -r bdir; do
       $ECHO "Removing backup folder $bdir"
-      $RM -rf $bdir
+      sudo $RM -rf $bdir
    done
 else
    $ECHO ""
