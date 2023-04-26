@@ -1,7 +1,10 @@
 #! /bin/bash
 #
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+BACKUP_HOME="/data/influxdb_backup"
 ECHO="/bin/echo"
+LS="/bin/ls"
+RM="/bin/rm"
 #
 CONTAINER="influxdb"
 #
@@ -20,11 +23,6 @@ dirdate=$(date +'%d.%m.%Y')
 #
 docker exec -t "$ID" mkdir /opt/$dirdate
 docker exec -t "$ID" influxd backup --portable /opt/$dirdate
-#
-BACKUP_HOME="/data/influxdb_backup"
-ECHO="/bin/echo"
-LS="/bin/ls"
-RM="/bin/rm"
 #
 shopt -s nullglob
 logfiles=($BACKUP_HOME/*)
