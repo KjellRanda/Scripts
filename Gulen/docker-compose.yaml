@@ -1,4 +1,7 @@
 version: '3.8'
+
+name: python
+
 services:
     portainer-ce:
         ports:
@@ -91,6 +94,7 @@ services:
             - '3000:3000'
         volumes:
             - '/data/grafana:/var/lib/grafana'
+            - '/data/loki/grafana/provisioning/:/etc/grafana/provisioning/'
         environment:
             - 'TZ=Europe/Oslo'
         image: grafana/grafana
@@ -101,6 +105,40 @@ services:
             - "com.centurylinklabs.watchtower.monitor-only=true"
         depends_on:
             - influxdb
+
+    loki:
+        container_name: loki
+        restart: unless-stopped
+        hostname: loki
+        ports:
+            - '3100'
+        volumes:
+            - '/data/loki:/loki'
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: grafana/loki
+        networks:
+            default:
+                ipv4_address: 10.10.0.12
+        labels: 
+            - "com.centurylinklabs.watchtower.monitor-only=true"
+
+    promtail:
+        container_name: promtail
+        restart: unless-stopped
+        hostname: promtail
+        volumes:
+            - /data/loki/promtail-config.yaml:/etc/promtail/config.yml
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/containers:/var/lib/docker/containers
+        environment:
+            - 'TZ=Europe/Oslo'
+        image: grafana/promtail
+        networks:
+            default:
+                ipv4_address: 10.10.0.13
+        labels: 
+            - "com.centurylinklabs.watchtower.monitor-only=true"
 
     influxdb:
         container_name: influxdb
