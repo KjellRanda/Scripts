@@ -127,10 +127,13 @@ services:
         container_name: promtail
         restart: unless-stopped
         hostname: promtail
+        ports:
+            - '9080:9080'
         volumes:
             - /data/loki/promtail-config.yaml:/etc/promtail/config.yml
             - /var/run/docker.sock:/var/run/docker.sock
-            - /var/lib/docker/containers:/var/lib/docker/containers
+            - /var/lib/docker/containers:/var/lib/docker/containers:ro
+            - /var/log:/opt/var/log:ro
         environment:
             - 'TZ=Europe/Oslo'
         image: grafana/promtail
