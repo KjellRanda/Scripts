@@ -26,3 +26,10 @@ scrape_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
+  - job_name: system
+    static_configs:
+    - targets:
+      - localhost
+      labels:
+        job: varlogs
+        __path__: /opt/var/log/*log
