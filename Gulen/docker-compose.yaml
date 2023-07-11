@@ -23,6 +23,11 @@ services:
                 ipv4_address: 10.10.0.10
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3  
 
     kapacitor:
         container_name: kapacitor
@@ -42,6 +47,11 @@ services:
                 ipv4_address: 10.10.0.8
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
         depends_on:
             - influxdb
             - chronograf
@@ -64,6 +74,11 @@ services:
                 ipv4_address: 10.10.0.7
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
         depends_on:
             - influxdb
 
@@ -83,6 +98,11 @@ services:
                 ipv4_address: 10.10.0.6
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
         depends_on:
             - influxdb
 
@@ -103,6 +123,11 @@ services:
                 ipv4_address: 10.10.0.5
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
         depends_on:
             - influxdb
 
@@ -122,6 +147,11 @@ services:
                 ipv4_address: 10.10.0.12
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
 
     promtail:
         container_name: promtail
@@ -142,6 +172,11 @@ services:
                 ipv4_address: 10.10.0.13
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
 
     influxdb:
         container_name: influxdb
@@ -160,6 +195,11 @@ services:
                 ipv4_address: 10.10.0.3
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
 
  #   telegraf:
  #       container_name: telegraf
@@ -192,6 +232,11 @@ services:
                 ipv4_address: 10.10.0.9
         labels: 
             - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
 
     watchtower:
         container_name: watchtower
@@ -210,6 +255,11 @@ services:
         networks:
             default:
                 ipv4_address: 10.10.0.4
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
 
     myuplink:
         container_name: myuplink
@@ -239,6 +289,11 @@ services:
                 ipv4_address: 10.10.0.11
         labels: 
             - "com.centurylinklabs.watchtower.enable=false"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
 
 networks:
   default:
