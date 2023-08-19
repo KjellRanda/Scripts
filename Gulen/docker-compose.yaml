@@ -139,8 +139,8 @@ services:
             - '3100'
         volumes:
             - '/data/loki:/loki'
-#            - '/data/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml'
-#        command: -config.file=/etc/loki/loki-config.yaml
+            - '/data/loki/config:/etc/loki'
+        command: -config.file=/etc/loki/local-config.yaml
         environment:
             - 'TZ=Europe/Oslo'
         image: grafana/loki
