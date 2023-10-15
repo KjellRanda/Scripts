@@ -85,7 +85,7 @@ def writeLine(coord):
     print(")")
 
 def writePoints(coord):
-    print("MULTIPONT (", end="", sep="")
+    print("MULTIPOINT (", end="", sep="")
     formatPoints(coord, "(", ")")
     print(")")
 
