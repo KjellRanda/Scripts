@@ -58,7 +58,7 @@ def parseArguments(script, argv):
 
 def getfromGeoNorge(kommunenr, gnr, bnr, epgs):
     url = "https://ws.geonorge.no/eiendom/v1/geokoding?omrade=true&kommunenummer=" + str(kommunenr) + "&gardsnummer=" + str(gnr) + "&bruksnummer=" + str(bnr) + "&utkoordsys=" + str(epgs)
-    response = requests.get(url)
+    response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.json()
     else:
@@ -115,15 +115,23 @@ def main(script, argv):
         sys.exit(5)
 
     geometry = data['features']
-    ltype = geometry[0]['geometry']
-    if ltype['type'] == 'Polygon':
-        coord = ltype['coordinates']
-        writePolygon(coord)
-        writeLine(coord)
-        writePoints(coord)
-    else:
-        print("No Polygon data found")
-        sys.exit(7)
+    n = 0
+    while n < 100:
+        try:
+            ltype = geometry[n]['geometry']
+            if ltype['type'] == 'Polygon':
+                coord = ltype['coordinates']
+                writePolygon(coord)
+                writePoints(coord)
+                writeLine(coord)
+                print()
+                n = n + 1
+        except IndexError:
+            break
+
+    if n == 0:
+       print("No Polygon data found")
+       sys.exit(7)
 
 if __name__ == "__main__":
     script = sys.argv[0]
