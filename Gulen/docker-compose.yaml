@@ -234,6 +234,7 @@ services:
         volumes:
             - '/data/duplicati/data:/data'
             - '/data:/source:ro'
+            - '/home/pi:/hpi:ro'
         networks:
             default:
                 ipv4_address: 10.10.0.9
