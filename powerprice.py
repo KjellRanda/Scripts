@@ -1,12 +1,13 @@
 
 from datetime import date, timedelta, datetime
-import sys, os
+import sys
+import os
 import time
 import configparser
 from io import StringIO, BytesIO
+import re
 import requests
 import lxml.etree as ET
-import re
 
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
@@ -52,9 +53,8 @@ def getEntsoePrice(area, apikey):
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.text.encode('UTF-8')
-    else:
-        print("Error getting data from Entsso-E. Reurn code = ", response.status_code)
-        sys.exit(3)
+    print("Error getting data from Entsso-E. Reurn code = ", response.status_code)
+    sys.exit(3)
 
 def parseXML(xml, xslt):
     rlist = []
@@ -106,7 +106,7 @@ def parseArgs(argv):
     if len(argv) >= 1:
         arg = argv[0].upper()
         return arg
-    
+
 def getConfig():
     home = os.path.expanduser("~")
     inifile = home + "/.entsoe.ini"
