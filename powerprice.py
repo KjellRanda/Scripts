@@ -66,7 +66,6 @@ def parseXML(xml, xslt):
     for i in root.findall('./TimeSeries/Period'):
         res = i.find('resolution')
         tstart = i.find('timeInterval/start')
-        tend = i.find('timeInterval/end')
         t1 = datetime.strptime(datetime_from_utc_to_local(tstart.text),'%Y-%m-%d %H:%M')
         for j in i.findall('Point'):
             period = j.find('position')
@@ -86,9 +85,8 @@ def valutaKursNB():
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.json()
-    else:
-        print("Error getting data from Norges Bank code = ", response.status_code)
-        sys.exit(3)
+    print("Error getting data from Norges Bank code = ", response.status_code)
+    sys.exit(3)
 
 def getEntsoeArea(area):
     entsoeArea = [["NO1", "10YNO-1--------2", "Oslo"],
@@ -139,7 +137,6 @@ def main(argv):
     currency = valutaKursNB()
     prc = float(currency['data']['dataSets'][0]['series']['0:0:0:0']['observations']['0'][0])
 
-    row = len(timeprice[0])
     col = len(timeprice)
     print("======== Power price in NOK/kWh for area", area, "-", name, "========")
     for i in range(col):
