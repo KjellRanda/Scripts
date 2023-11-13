@@ -99,7 +99,7 @@ def getEntsoeArea(area):
     for i in range(len(entsoeArea)):
         if area == entsoeArea[i][0]:
             return entsoeArea[i][1], entsoeArea[i][2]
-    return "Unknown", "Unknown"
+    return "", ""
 
 def parseArgs(argv):
     arg = ""
@@ -130,7 +130,7 @@ def main(argv):
         area = arg
 
     areacode, name = getEntsoeArea(area)
-    if areacode == "Unknown":
+    if not areacode:
         print("Unknown areacode", area, "exiting ....")
         sys.exit(1)
 
