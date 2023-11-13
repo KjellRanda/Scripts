@@ -103,7 +103,7 @@ def parseArgs(argv):
     arg = ""
     if len(argv) >= 1:
         arg = argv[0].upper()
-        return arg
+    return arg
 
 def getConfig():
     home = os.path.expanduser("~")
@@ -141,7 +141,7 @@ def main(argv):
     print("======== Power price in NOK/kWh for area", area, "-", name, "========")
     for i in range(col):
         timeprice[i][3] = timeprice[i][3]*prc*1.25/1000
-        print(timeprice[i][0], " - ", timeprice[i][1], " - ", '{:2d}'.format(timeprice[i][2]), " - ", '{:7.4f}'.format(timeprice[i][3]))
+        print(timeprice[i][0], " - ", timeprice[i][1], " - ", f"{timeprice[i][2]:2d}", " - ", f"{timeprice[i][3]:7.4f}")
 
 if __name__ == "__main__":
     main(sys.argv[1:])
