@@ -7,7 +7,7 @@ import configparser
 from io import StringIO, BytesIO
 import re
 import requests
-import lxml.etree as ET
+from lxml import etree as ET
 
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
