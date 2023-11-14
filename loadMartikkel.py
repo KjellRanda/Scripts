@@ -1,16 +1,25 @@
-
+"""
+Program to get properties border coordinates from Geonorge using their api or a json file downloaded Geonorge
+Writes the data as WKT data for us in QGIS or other GIS software
+"""
 import sys
 import json
 import getopt
 import requests
 
 def usage(script):
+    """
+    How to use the program
+    """
     print(script, '-f jasonfile .... to load matrikkel coordinates from file')
     print('or')
     print(script, '-k kommunenr -g gardsnummer -b bruksnummer -e EPGS code .... to load from GeoNorge using their api')
     sys.exit(2)
 
 def parseArguments(name, argv):
+    """
+    Parse the program arguments. See function usage.
+    """
     kommunenr = 0
     gnr = 0
     bnr = 0
@@ -19,13 +28,13 @@ def parseArguments(name, argv):
 
     if len(argv) == 2:
         try:
-            opts, args = getopt.getopt(argv,"f:")
+            opts, arg = getopt.getopt(argv,"f:")
         except getopt.GetoptError as err:
             print(err)
             usage(name)
     if len(argv) == 8:
         try:
-            opts, args = getopt.getopt(argv,"k:g:b:e:")
+            opts, arg = getopt.getopt(argv,"k:g:b:e:")
         except getopt.GetoptError as err:
             print(err)
             usage(name)
@@ -57,6 +66,9 @@ def parseArguments(name, argv):
     return(kommunenr, gnr, bnr, epgs, file_name)
 
 def getfromGeoNorge(kommunenr, gnr, bnr, epgs):
+    """
+    Get propery border coordinates from Geonorge using their api
+    """
     url = "https://ws.geonorge.no/eiendom/v1/geokoding?omrade=true&kommunenummer=" + str(kommunenr) + "&gardsnummer=" + str(gnr) + "&bruksnummer=" + str(bnr) + "&utkoordsys=" + str(epgs)
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
@@ -65,6 +77,9 @@ def getfromGeoNorge(kommunenr, gnr, bnr, epgs):
     sys.exit(3)
 
 def readJsonFile(file_name):
+    """
+    Read a json file downloaded from Geonorge
+    """
     try:
         with open(file_name, 'r', encoding="utf-8") as file:
             data = json.load(file)
@@ -75,21 +90,33 @@ def readJsonFile(file_name):
         sys.exit(4)
 
 def writePolygon(coord):
+    """
+    Write WKT datatype POLYGON
+    """
     print("POLYGON ((", end="", sep="")
     formatPoints(coord, "", "")
     print("))")
 
 def writeLine(coord):
+    """
+    Write WKT datatype LINESTRING
+    """
     print("LINESTRING (", end="", sep="")
     formatPoints(coord, "", "")
     print(")")
 
 def writePoints(coord):
+    """
+    Write WKT datatype MULTIPOINT
+    """
     print("MULTIPOINT (", end="", sep="")
     formatPoints(coord, "(", ")")
     print(")")
 
 def formatPoints(coord, c1, c2):
+    """
+    Write the coordinates for the points in the WKT datatypes
+    """
     n = len(coord[0])
     i = 1
     for coo in coord[0]:
@@ -100,6 +127,11 @@ def formatPoints(coord, c1, c2):
         i = i + 1
 
 def main(script, argv):
+    """
+    Parse arguments. Get data from Geonorge or exsisting downloaded json file
+    Try to get the coordinates for up to 100 polygon in th einput data
+    Wites the data as WKT
+    """
 
     if len(argv) != 8 and len(argv) != 2:
         usage(script)
