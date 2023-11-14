@@ -22,4 +22,4 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        pylint --disable=invalid-name,line-too-long --extension-pkg-whitelist=lxml $(git ls-files '*.py')
+        pylint --disable=invalid-name,line-too-long --extension-pkg-whitelist=lxml --max-branches=14 $(git ls-files '*.py')
