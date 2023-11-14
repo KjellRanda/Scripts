@@ -10,7 +10,7 @@ def usage(script):
     print(script, '-k kommunenr -g gardsnummer -b bruksnummer -e EPGS code .... to load from GeoNorge using their api')
     sys.exit(2)
 
-def parseArguments(script, argv):
+def parseArguments(name, argv):
     kommunenr = 0
     gnr = 0
     bnr = 0
@@ -22,36 +22,36 @@ def parseArguments(script, argv):
             opts, args = getopt.getopt(argv,"f:")
         except getopt.GetoptError as err:
             print(err)
-            usage(script)
-    elif len(argv) == 8:
+            usage(name)
+    if len(argv) == 8:
         try:
             opts, args = getopt.getopt(argv,"k:g:b:e:")
         except getopt.GetoptError as err:
             print(err)
-            usage(script)
+            usage(name)
 
     for opt, arg in opts:
         if opt == '-k':
             try:
                 kommunenr = int(arg)
             except ValueError:
-                usage(script)
-        elif opt == '-g':
+                usage(name)
+        if opt == '-g':
             try:
                 gnr = int(arg)
             except ValueError:
-                usage(script)
-        elif opt == '-b':
+                usage(name)
+        if opt == '-b':
             try:
                 bnr = int(arg)
             except ValueError:
-                usage(script)
-        elif opt == '-e':
+                usage(name)
+        if opt == '-e':
             try:
                 epgs = int(arg)
             except ValueError:
-                usage(script)
-        elif opt == '-f':
+                usage(name)
+        if opt == '-f':
             file_name = arg
 
     return(kommunenr, gnr, bnr, epgs, file_name)
@@ -61,9 +61,8 @@ def getfromGeoNorge(kommunenr, gnr, bnr, epgs):
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.json()
-    else:
-        print("Error getting data from GeoNorge. Reurn code = ", response.status_code)
-        sys.exit(3)
+    print("Error getting data from GeoNorge. Reurn code = ", response.status_code)
+    sys.exit(3)
 
 def readJsonFile(file_name):
     try:
@@ -130,9 +129,9 @@ def main(script, argv):
             break
 
     if n == 0:
-       print("No Polygon data found")
-       sys.exit(7)
+        print("No Polygon data found")
+        sys.exit(7)
 
 if __name__ == "__main__":
-    script = sys.argv[0]
-    main(script, sys.argv[1:])
+    scriptName = sys.argv[0]
+    main(scriptName, sys.argv[1:])
