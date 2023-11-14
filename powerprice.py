@@ -1,4 +1,5 @@
-
+"""
+"""
 from datetime import date, timedelta, datetime
 import sys
 import os
@@ -41,6 +42,8 @@ def datetime_from_utc_to_local(utc):
     return (datetime.strptime(utc, '%Y-%m-%dT%H:%MZ') + offset).strftime('%Y-%m-%d %H:%M')
 
 def getEntsoePrice(area, apikey):
+    """
+    """
     baseURL = "https://web-api.tp.entsoe.eu/api"
     docCode = "A44"
 
@@ -57,6 +60,8 @@ def getEntsoePrice(area, apikey):
     sys.exit(3)
 
 def parseXML(xml, lxslt):
+    """
+    """
     rlist = []
     tree = ET.parse(BytesIO(xml))
     transform=ET.XSLT(ET.parse(StringIO(lxslt)))
@@ -80,6 +85,8 @@ def parseXML(xml, lxslt):
     return rlist
 
 def valutaKursNB():
+    """
+    """
     url = "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-json&lastNObservations=1&locale=no"
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
@@ -88,12 +95,14 @@ def valutaKursNB():
     sys.exit(3)
 
 def getEntsoeArea(area):
+    """
+    """
     entsoeArea = [["NO1", "10YNO-1--------2", "Oslo"],
                   ["NO2", "10YNO-2--------T", "Kristiansand"],
                   ["NO3", "10YNO-3--------J", "Trondheim"],
                   ["NO4", "10YNO-4--------9", "Tromsø"],
                   ["NO5", "10Y1001A1001A48H", "Bergen"]]
-    
+
     for entArea in enumerate(entsoeArea):
         if area == entArea[1][0]:
             return entArea[1][1], entArea[1][2]
@@ -106,6 +115,8 @@ def parseArgs(argv):
     return arg
 
 def getConfig():
+    """
+    """
     home = os.path.expanduser("~")
     inifile = home + "/.entsoe.ini"
     config = configparser.ConfigParser()
@@ -116,6 +127,8 @@ def getConfig():
         return ""
 
 def main(argv):
+    """
+    """
     area = "NO5"
 
     apikey = getConfig()
