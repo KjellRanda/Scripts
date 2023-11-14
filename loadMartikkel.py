@@ -66,11 +66,12 @@ def getfromGeoNorge(kommunenr, gnr, bnr, epgs):
 
 def readJsonFile(file_name):
     try:
-        with open(file_name, 'r') as file:
+        with open(file_name, 'r', encoding="utf-8") as file:
             data = json.load(file)
             return data
-    except BaseException:
+    except (OSError, json.decoder.JSONDecodeError) as err:
         print("File", file_name, "does not exsist, is not readable or not a json file")
+        print("Error reported:", err)
         sys.exit(4)
 
 def writePolygon(coord):
