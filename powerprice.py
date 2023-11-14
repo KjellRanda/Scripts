@@ -1,4 +1,5 @@
 """
+Program to get today and tomorrow from Entsoe and exchange rate from Norges Bank.
 """
 from datetime import date, timedelta, datetime
 import sys
@@ -43,6 +44,7 @@ def datetime_from_utc_to_local(utc):
 
 def getEntsoePrice(area, apikey):
     """
+    Get power price as xml from Entsoe using their api
     """
     baseURL = "https://web-api.tp.entsoe.eu/api"
     docCode = "A44"
@@ -61,6 +63,8 @@ def getEntsoePrice(area, apikey):
 
 def parseXML(xml, lxslt):
     """
+    Parse the Entsoe xml and extract price in Euro for each hour for today and tomorrow if it is available
+    Remove xml namespace using the xslt structure
     """
     rlist = []
     tree = ET.parse(BytesIO(xml))
@@ -86,6 +90,8 @@ def parseXML(xml, lxslt):
 
 def valutaKursNB():
     """
+    Get the exchange rate Euro to NOK from Norges Bank using their api
+    Use tlatest exchange rate available
     """
     url = "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-json&lastNObservations=1&locale=no"
     response = requests.get(url, timeout=60)
@@ -96,6 +102,7 @@ def valutaKursNB():
 
 def getEntsoeArea(area):
     """
+    Get the Entsoe area code from Norwegian area codes
     """
     entsoeArea = [["NO1", "10YNO-1--------2", "Oslo"],
                   ["NO2", "10YNO-2--------T", "Kristiansand"],
@@ -109,6 +116,9 @@ def getEntsoeArea(area):
     return "", ""
 
 def parseArgs(argv):
+    """
+    Get area code given as argument. Only car eabout the first argument
+    """
     arg = ""
     if len(argv) >= 1:
         arg = argv[0].upper()
@@ -116,6 +126,7 @@ def parseArgs(argv):
 
 def getConfig():
     """
+    Read the program ini file and get the Entsoe api key
     """
     home = os.path.expanduser("~")
     inifile = home + "/.entsoe.ini"
@@ -128,6 +139,8 @@ def getConfig():
 
 def main(argv):
     """
+    Get the api key, arguments used, Entsoe area code
+    Get the xml from Entsoe, parse the xmlto get price, get the exchange rate from NB and print the price
     """
     area = "NO5"
 
