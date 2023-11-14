@@ -58,9 +58,8 @@ def getEntsoePrice(area, apikey):
 
 def parseXML(xml, xslt):
     rlist = []
-    xslt_doc=ET.parse(StringIO(xslt))
     tree = ET.parse(BytesIO(xml))
-    transform=ET.XSLT(xslt_doc)
+    transform=ET.XSLT(ET.parse(StringIO(xslt)))
     tree = transform(tree)
     root = tree.getroot()
     for i in root.findall('./TimeSeries/Period'):
@@ -94,9 +93,10 @@ def getEntsoeArea(area):
                   ["NO3", "10YNO-3--------J", "Trondheim"],
                   ["NO4", "10YNO-4--------9", "Tromsø"],
                   ["NO5", "10Y1001A1001A48H", "Bergen"]]
-    for i in range(len(entsoeArea)):
-        if area == entsoeArea[i][0]:
-            return entsoeArea[i][1], entsoeArea[i][2]
+    
+    for i, entArea in enumerate(entsoeArea):
+        if area == entArea[0]:
+            return entArea[1], entArea[2]
     return "", ""
 
 def parseArgs(argv):
