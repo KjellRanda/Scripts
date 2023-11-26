@@ -41,6 +41,9 @@ if (msg.payload.type == "evt.meter.report") {
     let u2 = msg.payload.val.u2/vfac;
     let u3 = msg.payload.val.u3/vfac;
 
+    let p_export_react = msg.payload.val.p_export_react;
+    let p_import_react = msg.payload.val.p_import_react;
+
     arr = "I1=" + i1 + "A I2=" + i2 + "A I3=" + i3 + "A U1=" + u1 + "V U2=" + u2 + "V U3=" + u3 + "V"
     node.log(arr)
     
@@ -53,6 +56,8 @@ if (msg.payload.type == "evt.meter.report") {
         "val_u1": u1,
         "val_u2": u2,
         "val_u3": u3,
+        "val_p_export_react": p_export_react,
+        "val_p_import_react": p_import_react,
         "time": dt.getTime()*1000000
     },
     {
