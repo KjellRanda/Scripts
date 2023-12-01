@@ -13,8 +13,14 @@ for (let i = 0; i < tp.length; i++) {
     if (state == "low") {
         temp = tmp[i];
     }
-    if (state == "high") {
+    else if (state == "high") {
         temp = tmp[i] - tDiff;
+    }
+    else {
+        node.log("");
+        node.log("Unknown payload received. Exitong ....");
+        node.log(state);
+        return null;
     }
 
     msg = {};
