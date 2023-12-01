@@ -90,6 +90,7 @@ services:
             - '1880:1880'
         volumes:
             - '/data/nodered:/data'
+            - '/data/powerprice:/powerprice'
         environment:
             - 'TZ=Europe/Oslo'
  #           - 'NODE_RED_ENABLE_PROJECTS=true'
