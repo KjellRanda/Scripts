@@ -26,6 +26,18 @@ for (let i = 0; i < lines.length; i++) {
         n = n + 1;
     }
 }
+
+if ( n != 24) {
+    node.log("");
+    node.log("Incompleate price information. Only " + n + " valuse found for " + today + ". Exiting ....");
+    return null;
+}
+if (!tFound) {
+    node.log("");
+    node.log("Price for current hour " + hour + " not found. Exiting ....");
+    return null;
+}
+
 prc.sort(function (a, b) { return b - a });
 let limitVal = prc[nVal - 1];
 
