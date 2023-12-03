@@ -1,4 +1,4 @@
-// Entre, Bad
+const room = ["Entrance", "Bathroom"];
 const tp = ["pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1",
             "pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1"];
 const tmp = [20.0, 21.0];
@@ -8,8 +8,7 @@ var outMsgs = [];
 let state = msg.payload;
 
 var temp;
-for (let i = 0; i < tp.length; i++) {
-    temp = tmp[i]
+for (let i = 0; i < room.length; i++) {
     if (state == "low") {
         temp = tmp[i];
     }
@@ -18,7 +17,7 @@ for (let i = 0; i < tp.length; i++) {
     }
     else {
         node.log("");
-        node.log("Unknown payload received. Exitong ....");
+        node.log("Unknown payload received. Exiting ....");
         node.log(state);
         return null;
     }
@@ -42,10 +41,8 @@ for (let i = 0; i < tp.length; i++) {
     }
     outMsgs.push(msg)
 
-    let arr = "";
-    arr = "Power cost " + state + " Setting setpoint to " + temp + "\xB0C";
-    node.log("");
-    node.log(msg.topic);
+    let arr = "Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i];
+    if (i == 0) {node.log("");}
     node.log(arr);
 }
 
