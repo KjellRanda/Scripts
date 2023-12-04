@@ -430,7 +430,7 @@
         "encoding": "none",
         "allProps": true,
         "x": 770,
-        "y": 820,
+        "y": 800,
         "wires": [
             [
                 "365eb4fb71f9b4e2"
@@ -442,7 +442,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "getPriceLevel",
-        "func": "let text = msg.payload;\nlet lines = text.split(/\\r?\\n|\\r|\\n/g);\nlet prc = [];\nconst nVal = 4;\n\nconst date = new Date();\nlet today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');\nlet hour = date.getHours();\n\nlet field = \"\";\nlet n = 0\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    if (field[0] == today) {\n        prc[n] = parseFloat(field[8]);\n        n = n + 1;\n    }\n}\nprc.sort(function (a, b) { return b - a });\nlet limitVal = prc[nVal-1];\n\nlet tVal = 0.0;\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    let dt = field[1]?.split(':')\n    if (field[0] == today && parseInt(dt[0]) >= parseInt(hour)  ) {\n        tVal = parseFloat(field[8]);\n        break;\n    }\n}\n\nlet arr = \"\";\nif (prc[0] < 1.0) {\n    node.log(\"\");\n    node.log(\"Max power price \" + prc[0] + \" to low for setpoint modification\");\n    msg.payload = \"free\";\n    return msg;\n}\n\nif (tVal >= limitVal) {\n    arr = \"Expensive hour: \" + field[0] + \" \" + field[1] + \" Price = \" + tVal + \" Limit = \" + limitVal;\n    msg.payload = \"high\";\n} else {\n    arr = \"Cheap hour: \" + field[0] + \" \" + field[1] + \" Price = \" + tVal + \" Limit = \" + limitVal;\n    msg.payload = \"low\"\n}\n\nnode.log(\"\")\nnode.log(arr)\n\nreturn msg;",
+        "func": "let text = msg.payload;\nlet lines = text.split(/\\r?\\n|\\r|\\n/g);\nlet prc = [];\nconst nVal = 4;\nconst freePrice = 0.8;\n\nconst date = new Date();\nlet today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');\nlet hour = date.getHours();\n\nvar tDay, tHour, field, arr;\nlet tVal = 0.0;\nlet tFound = false;\nlet n = 0;\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    if (field[0] == today) {\n        prc[n] = parseFloat(field[8]);\n        let dt = field[1]?.split(':');\n        if (parseInt(dt[0]) >= parseInt(hour) && !tFound) {\n            tVal = prc[n];\n            tDay = field[0];\n            tHour = field[1];\n            tFound = true;\n        }\n        n = n + 1;\n    }\n}\n\nif ( n != 24) {\n    node.log(\"\");\n    node.log(\"Incompleate price information. Only \" + n + \" valuse found for \" + today + \". Exiting ....\");\n    return null;\n}\nif (!tFound) {\n    node.log(\"\");\n    node.log(\"Price for current hour \" + hour + \" not found. Exiting ....\");\n    return null;\n}\n\nprc.sort(function (a, b) { return b - a });\nlet limitVal = prc[nVal - 1];\n\nif (prc[0] < freePrice) {\n    node.log(\"\");\n    node.log(\"Max power price \" + prc[0] + \" to low for setpoint modification\");\n    return null;\n}\n\nif (tVal >= limitVal) {\n    arr = \"Expensive hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal;\n    msg.payload = \"high\";\n} else {\n    arr = \"Cheap hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal;\n    msg.payload = \"low\"\n}\n\nnode.log(\"\")\nnode.log(arr)\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -450,10 +450,10 @@
         "finalize": "",
         "libs": [],
         "x": 300,
-        "y": 960,
+        "y": 900,
         "wires": [
             [
-                "204b535d34b7ea32"
+                "ec72048cac707c01"
             ]
         ]
     },
@@ -479,7 +479,7 @@
         "inputs": 0,
         "hasButton": true,
         "x": 130,
-        "y": 820,
+        "y": 800,
         "wires": [
             [
                 "9a658dc944b44bc3"
@@ -557,7 +557,7 @@
         "encoding": "none",
         "allProps": false,
         "x": 380,
-        "y": 820,
+        "y": 800,
         "wires": [
             [
                 "3b7e4f04fc431060"
@@ -587,7 +587,7 @@
         "repair": false,
         "outputs": 2,
         "x": 590,
-        "y": 820,
+        "y": 800,
         "wires": [
             [
                 "7193348de4b5e51f"
@@ -609,48 +609,16 @@
         "correl": "",
         "expiry": "",
         "broker": "85661dd20d60814f",
-        "x": 900,
-        "y": 960,
+        "x": 740,
+        "y": 900,
         "wires": []
-    },
-    {
-        "id": "204b535d34b7ea32",
-        "type": "switch",
-        "z": "a0e9af9010557c06",
-        "name": "lowPrice",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "regex",
-                "v": "high|low",
-                "vt": "str",
-                "case": false
-            },
-            {
-                "t": "eq",
-                "v": "free",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 2,
-        "x": 480,
-        "y": 960,
-        "wires": [
-            [
-                "ec72048cac707c01"
-            ],
-            []
-        ]
     },
     {
         "id": "ec72048cac707c01",
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "updateSetpoint",
-        "func": "// Entre, Bad\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload;\n\nvar temp;\nfor (let i = 0; i < tp.length; i++) {\n    temp = tmp[i]\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    let arr = \"\";\n    arr = \"Power cost \" + state + \" Setting setpoint to \" + temp + \"\\xB0C\";\n    node.log(\"\");\n    node.log(msg.topic);\n    node.log(arr);\n}\n\nreturn [outMsgs];",
+        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    let arr = \"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i];\n    if (i == 0) {node.log(\"\");}\n    node.log(arr);\n}\n\nreturn [outMsgs];",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -662,8 +630,8 @@
                 "module": "crypto"
             }
         ],
-        "x": 660,
-        "y": 960,
+        "x": 500,
+        "y": 900,
         "wires": [
             [
                 "f95647d5ee2e73a6"
