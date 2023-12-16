@@ -8,7 +8,7 @@ const date = new Date();
 let today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');
 let hour = date.getHours();
 
-var tDay, tHour, field, arr;
+var tDay, tHour, field;
 let tVal = 0.0;
 let tFound = false;
 let n = 0;
@@ -47,15 +47,13 @@ if (prc[0] < freePrice) {
     return null;
 }
 
+node.log("")
 if (tVal >= limitVal) {
-    arr = "Expensive hour: " + tDay + " " + tHour + " Price = " + tVal + " Limit = " + limitVal;
+    node.log("Expensive hour: " + tDay + " " + tHour + " Price = " + tVal + " Limit = " + limitVal);
     msg.payload = "high";
 } else {
-    arr = "Cheap hour: " + tDay + " " + tHour + " Price = " + tVal + " Limit = " + limitVal;
+    node.log("Cheap hour: " + tDay + " " + tHour + " Price = " + tVal + " Limit = " + limitVal);
     msg.payload = "low"
 }
-
-node.log("")
-node.log(arr)
 
 return msg;

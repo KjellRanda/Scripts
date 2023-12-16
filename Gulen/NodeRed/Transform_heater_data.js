@@ -3,9 +3,8 @@ let topic = msg.topic;
 var os = global.get('os');
 var hostname = os.hostname();
 
-let arr = dt + " Host - " + hostname
 node.log("")
-node.log(arr)
+node.log(dt + " Host - " + hostname)
 node.log("Topic - " + msg.topic)
 
 let val = msg.payload.val;
@@ -16,11 +15,9 @@ if (unit == "kWh") {
     title = "Energy"
 }
 
-arr = title + " usage=" + val.toFixed(2) + unit
-node.log(arr)
+node.log(title + " usage=" + val.toFixed(2) + unit)
 
 msg = {}
-
 msg.payload = [{
     "val": val,
     "time": dt.getTime() * 1000000

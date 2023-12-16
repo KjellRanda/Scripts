@@ -3,9 +3,8 @@ let topic = msg.topic;
 var os = global.get('os');
 var hostname = os.hostname();
 
-let arr = dt + " Host - " + hostname
 node.log("")
-node.log(arr)
+node.log(dt + " Host - " + hostname)
 node.log("Topic - " + msg.topic)
 
 if (msg.payload.type != "evt.energy_price.report") {
@@ -44,11 +43,9 @@ if (typeof average == "undefined") {
     context.set('avr', average);
 }
 
-arr = "Price=" + price + " Scale=" + scale + " Percentile=" + percentile + " Average=" + average
-node.log(arr)
+node.log("Price=" + price + " Scale=" + scale + " Percentile=" + percentile + " Average=" + average)
 
 msg = {}
-
 msg.payload = [{
     "val_price": price,
     "val_scale": scale,

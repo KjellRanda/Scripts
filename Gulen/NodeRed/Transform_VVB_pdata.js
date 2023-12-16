@@ -3,9 +3,8 @@ let topic = msg.topic;
 var os = global.get('os');
 var hostname = os.hostname();
 
-let arr = dt + " Host - " + hostname
 node.log("")
-node.log(arr)
+node.log(dt + " Host - " + hostname)
 node.log("Topic - " + msg.topic)
 
 let power = msg.payload.val;
@@ -16,9 +15,7 @@ if (unit == "kWh") {
     title = "Energy"
 }
 
-arr = title + " usage=" + power + unit
-
-node.log(arr)
+node.log(title + " usage=" + power + unit)
 
 let offset = 0
 if (unit == "kWh") {
@@ -26,7 +23,6 @@ if (unit == "kWh") {
 }
 
 msg = {}
-
 msg.payload = [{
     "val_hpower": power,
     "val_hunit": unit,

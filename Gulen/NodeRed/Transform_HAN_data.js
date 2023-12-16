@@ -2,9 +2,9 @@ let dt = new Date(msg.payload.ctime);
 let topic = msg.topic;
 var os = global.get('os');
 var hostname = os.hostname();
-let arr = dt + " Host - " + hostname
+
 node.log("")
-node.log(arr)
+node.log(dt + " Host - " + hostname)
 node.log("Topic - " + msg.topic)
 
 let vfac = 10
@@ -18,12 +18,10 @@ if (msg.payload.type == "evt.meter.report") {
     if (unit == "kWh") {
         title = "Energy"
     }
-    arr = title + " usage=" + power + unit
 
-    node.log(arr)
+    node.log(title + " usage=" + power + unit)
     
     msg = {}
-
     msg.payload = [{
         "val": power,
         "unit": unit,
@@ -44,11 +42,9 @@ if (msg.payload.type == "evt.meter.report") {
     let p_export_react = msg.payload.val.p_export_react;
     let p_import_react = msg.payload.val.p_import_react;
 
-    arr = "I1=" + i1 + "A I2=" + i2 + "A I3=" + i3 + "A U1=" + u1 + "V U2=" + u2 + "V U3=" + u3 + "V"
-    node.log(arr)
+    node.log("I1=" + i1 + "A I2=" + i2 + "A I3=" + i3 + "A U1=" + u1 + "V U2=" + u2 + "V U3=" + u3 + "V")
     
     msg = {}
-
     msg.payload = [{
         "val_i1": i1,
         "val_i2": i2,

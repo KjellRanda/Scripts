@@ -1,9 +1,7 @@
 let topic = "heater/VVB Gulen";
-
-var CurrentTemprature;
-
 var os = global.get('os');
 var hostname = os.hostname();
+var CurrentTemprature;
 
 if (msg.topic == "heater/VVB Gulen/EnergiStored") {
    context.set("EnergyStored", msg.payload);
@@ -40,9 +38,8 @@ if (msg.topic == "heater/VVB Gulen/CurrentTemprature") {
       "topic": topic
    }];
 
-   let arr = dt + " Host - " + hostname
    node.log("")
-   node.log(arr)
+   node.log(dt + " Host - " + hostname)
    node.log("Topic - " + topic)
    node.log("EnergyStored = " + msg.payload[0].EnergyStored + "kWh")
    node.log("EnergyTotal = " + msg.payload[0].EnergyTotal + "kWh")

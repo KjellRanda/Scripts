@@ -41,9 +41,8 @@ for (let i = 0; i < room.length; i++) {
     }
     outMsgs.push(msg)
 
-    let arr = "Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i];
     if (i == 0) {node.log("");}
-    node.log(arr);
+    node.log("Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
 }
 
 return [outMsgs];
