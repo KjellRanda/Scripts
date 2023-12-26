@@ -1,9 +1,9 @@
-""" Determine high power usage hours""" #pylint: disable=invalid-name
+""" Determine high power usage hours"""
 from datetime import datetime
 import sys
 import time
 import logging
-from influxdb import InfluxDBClient #pylint: disable=import-error
+from influxdb import InfluxDBClient
 
 def datetime_from_utc_to_local(utc):
     """
@@ -31,7 +31,7 @@ def influx_json(val, timev, typev):
     ]
     return json_body
 
-def main(): #pylint: disable=too-many-locals
+def main():
     """
     Find 3 hours each month with highest energy usage
     Store values in Influxdb
@@ -43,6 +43,7 @@ def main(): #pylint: disable=too-many-locals
     arr = []
     pusage = []
     ustime = []
+    usdate = []
     maxuse = ["MAX1", "MAX2", "MAX3"]
 
     year = datetime.now().year
@@ -50,7 +51,6 @@ def main(): #pylint: disable=too-many-locals
     s_date = str(year) + "-" + str(f"{month:02d}") + "-01T00:00:01Z"
 
     client = InfluxDBClient(host='localhost', port='8086', database='hansensor')
-#pylint: disable=line-too-long
     c_sql = "SELECT INTEGRAL(\"mean\")/3600 FROM ( SELECT MEAN(\"val\") AS mean FROM \"mqtt_consumer\" " + \
           "WHERE \"topic\" = \'pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1\' AND \"unit\" = \'W\' AND time <= now() and time >= \'" + \
            s_date + "\' GROUP BY time(5s) fill(previous) ) GROUP BY time(1h)"
@@ -70,15 +70,24 @@ def main(): #pylint: disable=too-many-locals
     arr.sort(reverse=True)
 
     sumu = 0.0
-    for i in range(3):
-        x, s = arr[i] #pylint: disable=invalid-name
-        pusage.append(x/1000)
-        ustime.append(datetime_from_utc_to_local(s))
-        sumu = sumu + pusage[i]
-        jbody = influx_json(pusage[i], ustime[i], maxuse[i])
-        client.write_points(jbody)
+    n = 0
+    for i in range(len(arr)):
+        x, s = arr[i]
+        t = datetime_from_utc_to_local(s)
+        d = t.split()
+        if not d[0] in usdate:
+            pusage.append(x/1000)
+            ustime.append(t)
+            usdate.append(d[0])
+            sumu = sumu + pusage[n]
+            jbody = influx_json(pusage[n], ustime[n], maxuse[n])
+            client.write_points(jbody)
+            print(n, " ", pusage[n], " ", ustime[n])
+            n = n + 1
+        if n == 3:
+            break;
 
-    avg = sumu/3
+    avg = sumu/n
     jbody = influx_json(avg, ustime[0], "MAXAVG")
     client.write_points(jbody)
 
