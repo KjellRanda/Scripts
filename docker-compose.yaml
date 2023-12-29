@@ -114,7 +114,7 @@ services:
 
     myuplink:
         container_name: myuplink
-        image: myuplinksmartconnect
+        image: myuplinksmartconnect:prod
         restart: unless-stopped
         hostname: myuplink
         environment:
@@ -143,3 +143,23 @@ services:
                 max-size: 10m
                 max-file: 3
 
+    duplicati:
+        container_name: duplicati
+        image: duplicati/duplicati
+        restart: unless-stopped
+        hostname: duplicati
+        ports:
+            - '8200:8200/tcp'
+        environment:
+            - 'TZ=TZ=Europe/Oslo'
+        volumes:
+            - '/data/duplicati/data:/data'
+            - '/data:/source:ro'
+            - '/home/pi:/hpi:ro'
+        labels: 
+            - "com.centurylinklabs.watchtower.monitor-only=true"
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+                max-file: 3
