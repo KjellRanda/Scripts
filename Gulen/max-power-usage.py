@@ -3,6 +3,7 @@ from datetime import datetime
 import sys
 import time
 import logging
+from logging.handlers import RotatingFileHandler
 from influxdb import InfluxDBClient
 
 def datetime_from_utc_to_local(utc):
@@ -36,8 +37,8 @@ def main():
     Find 3 hours each month with highest energy usage
     Store values in Influxdb
     """
-    logging.basicConfig(filename='maxusage.log', filemode='a', datefmt='%Y-%m-%d %H:%M:%S', \
-                        level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    rfh = RotatingFileHandler(filename='maxusage.log', mode='a', maxBytes=8*1024*1024, backupCount=8, encoding=None, delay=0)
+    logging.basicConfig(datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[rfh])
     logging.info('Processing starting ...')
 
     arr = []
