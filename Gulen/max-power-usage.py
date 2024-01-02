@@ -82,7 +82,6 @@ def main():
             sumu = sumu + pusage[n]
             jbody = influx_json(pusage[n], ustime[n], maxuse[n])
             client.write_points(jbody)
-            print(n, " ", pusage[n], " ", ustime[n])
             n = n + 1
         if n == 3:
             break;
@@ -93,7 +92,7 @@ def main():
 
     client.close()
 
-    logging.info('Processing finished ...')
+    logging.info('Processing finished. %s values processed...', str(n))
 
 if __name__ == "__main__":
     main()
