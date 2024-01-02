@@ -85,7 +85,7 @@ def main():
             client.write_points(jbody)
             n = n + 1
         if n == 3:
-            break;
+            break
 
     avg = sumu/n
     jbody = influx_json(avg, ustime[0], "MAXAVG")
