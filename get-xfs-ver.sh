@@ -15,4 +15,4 @@ do
 	fi
 	ver=$(grep XFS /var/log/messages | grep Mounting | grep \("$dev"\) | cut -d"(" -f2 | sort -u | awk '{print $3}')
 	printf "%-20s  %-9s %-8s\n" "$mnt" "$dev" "$ver"
-done 
+done
