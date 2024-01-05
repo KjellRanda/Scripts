@@ -19,7 +19,7 @@ msg = {};
 node.log("");
 node.log("Used so far " + power[n].integral.toFixed(2) + " KWh. Estimated houarly usage " + estimate.toFixed(2) + " KWh");
 
-if (current > 20 && estimate > maxLimit) {
+if (current > 19 && estimate > maxLimit) {
     msg.payload = "high";
     node.log("High estimated power usage. Lowering setpoints");
     usedP = "high";
