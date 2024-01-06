@@ -8,6 +8,61 @@
         "env": []
     },
     {
+        "id": "39eb304ea4c0f999",
+        "type": "subflow",
+        "name": "changeSetpt",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ec72048cac707c01"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
+        "id": "080343dc07f66e4b",
+        "type": "subflow",
+        "name": "getLocation",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "9a658dc944b44bc3"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 600,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "3b7e4f04fc431060",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
         "id": "85661dd20d60814f",
         "type": "mqtt-broker",
         "name": "MQTT - Test",
@@ -81,6 +136,98 @@
         "sessionExpiry": ""
     },
     {
+        "id": "ec72048cac707c01",
+        "type": "function",
+        "z": "39eb304ea4c0f999",
+        "name": "updateSetpoint",
+        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n}\n\nreturn [outMsgs];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "crypto",
+                "module": "crypto"
+            }
+        ],
+        "x": 220,
+        "y": 80,
+        "wires": [
+            [
+                "f95647d5ee2e73a6"
+            ]
+        ]
+    },
+    {
+        "id": "f95647d5ee2e73a6",
+        "type": "mqtt out",
+        "z": "39eb304ea4c0f999",
+        "name": "Futurehome MQTT",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "85661dd20d60814f",
+        "x": 430,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "9a658dc944b44bc3",
+        "type": "file in",
+        "z": "080343dc07f66e4b",
+        "name": "readLocationStateus",
+        "filename": "/powerprice/onPremise.state",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 240,
+        "y": 80,
+        "wires": [
+            [
+                "3b7e4f04fc431060"
+            ]
+        ]
+    },
+    {
+        "id": "3b7e4f04fc431060",
+        "type": "switch",
+        "z": "080343dc07f66e4b",
+        "name": "stateSwitch",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "true",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "false",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 80,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
         "id": "6394a2cc77f7f9ef",
         "type": "mqtt in",
         "z": "a0e9af9010557c06",
@@ -124,7 +271,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform HAN data",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nlet vfac = 10\nlet afac = 1000\n\nif (msg.payload.type == \"evt.meter.report\") {\n    let power = msg.payload.val;\n    let unit = msg.payload.props.unit\n    \n    let title = \"Power\"\n    if (unit == \"kWh\") {\n        title = \"Energy\"\n    }\n    arr = title + \" usage=\" + power + unit\n\n    node.log(arr)\n    \n    msg = {}\n\n    msg.payload = [{\n        \"val\": power,\n        \"unit\": unit,\n        \"time\": dt.getTime()*1000000\n    },\n    {\n        \"host\": hostname,\n        \"topic\": topic\n    }];\n} else if (msg.payload.type == \"evt.meter_ext.report\") {\n    let i1 = msg.payload.val.i1/afac;\n    let i2 = msg.payload.val.i2/afac;\n    let i3 = msg.payload.val.i3/afac;\n    let u1 = msg.payload.val.u1/vfac;\n    let u2 = msg.payload.val.u2/vfac;\n    let u3 = msg.payload.val.u3/vfac;\n\n    let p_export_react = msg.payload.val.p_export_react;\n    let p_import_react = msg.payload.val.p_import_react;\n\n    arr = \"I1=\" + i1 + \"A I2=\" + i2 + \"A I3=\" + i3 + \"A U1=\" + u1 + \"V U2=\" + u2 + \"V U3=\" + u3 + \"V\"\n    node.log(arr)\n    \n    msg = {}\n\n    msg.payload = [{\n        \"val_i1\": i1,\n        \"val_i2\": i2,\n        \"val_i3\": i3,\n        \"val_u1\": u1,\n        \"val_u2\": u2,\n        \"val_u3\": u3,\n        \"val_p_export_react\": p_export_react,\n        \"val_p_import_react\": p_import_react,\n        \"time\": dt.getTime()*1000000\n    },\n    {\n        \"host\": hostname,\n        \"topic\": topic\n    }];\n}\nreturn msg;",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet vfac = 10\nlet afac = 1000\n\nif (msg.payload.type == \"evt.meter.report\") {\n    let power = msg.payload.val;\n    let unit = msg.payload.props.unit\n    \n    let title = \"Power\"\n    if (unit == \"kWh\") {\n        title = \"Energy\"\n    }\n\n    node.log(title + \" usage=\" + power + unit)\n    \n    msg = {}\n    msg.payload = [{\n        \"val\": power,\n        \"unit\": unit,\n        \"time\": dt.getTime()*1000000\n    },\n    {\n        \"host\": hostname,\n        \"topic\": topic\n    }];\n} else if (msg.payload.type == \"evt.meter_ext.report\") {\n    let i1 = msg.payload.val.i1/afac;\n    let i2 = msg.payload.val.i2/afac;\n    let i3 = msg.payload.val.i3/afac;\n    let u1 = msg.payload.val.u1/vfac;\n    let u2 = msg.payload.val.u2/vfac;\n    let u3 = msg.payload.val.u3/vfac;\n\n    let p_export_react = msg.payload.val.p_export_react;\n    let p_import_react = msg.payload.val.p_import_react;\n\n    node.log(\"I1=\" + i1 + \"A I2=\" + i2 + \"A I3=\" + i3 + \"A U1=\" + u1 + \"V U2=\" + u2 + \"V U3=\" + u3 + \"V\")\n    \n    msg = {}\n    msg.payload = [{\n        \"val_i1\": i1,\n        \"val_i2\": i2,\n        \"val_i3\": i3,\n        \"val_u1\": u1,\n        \"val_u2\": u2,\n        \"val_u3\": u3,\n        \"val_p_export_react\": p_export_react,\n        \"val_p_import_react\": p_import_react,\n        \"time\": dt.getTime()*1000000\n    },\n    {\n        \"host\": hostname,\n        \"topic\": topic\n    }];\n}\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -265,7 +412,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform power cost",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nif (msg.payload.type != \"evt.energy_price.report\") {\n    node.log(\"Unsupported payload type \" + msg.payload.type + \" ... returning\")\n    return null;\n}\n\nvar perc = context.get('perc');\nif (typeof perc == \"undefined\") {\n    perc = 0;\n    context.set('perc', perc);\n}\n\nvar avr = context.get('avr');\nif (typeof avr == \"undefined\") {\n    avr = 0;\n    context.set('avr', avr);\n}\n\nlet price = msg.payload.val.price;\nlet scale = msg.payload.val.scale;\nlet percentile = msg.payload.val.percentile;\nlet average = msg.payload.val.average;\n\nif (typeof percentile == \"undefined\") {\n    percentile = context.get('perc');\n    node.log(\"Replacing undefiened percentile with \" + percentile)\n} else {\n    context.set('perc', percentile);\n}\n\nif (typeof average == \"undefined\") {\n    average = context.get('avr');\n    node.log(\"Replacing undefiened average with \" + average)\n} else {\n    context.set('avr', average);\n}\n\narr = \"Price=\" + price + \" Scale=\" + scale + \" Percentile=\" + percentile + \" Average=\" + average\nnode.log(arr)\n\nmsg = {}\n\nmsg.payload = [{\n    \"val_price\": price,\n    \"val_scale\": scale,\n    \"val_percentile\": percentile,\n    \"val_average\": average,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nif (msg.payload.type != \"evt.energy_price.report\") {\n    node.log(\"Unsupported payload type \" + msg.payload.type + \" ... returning\")\n    return null;\n}\n\nvar perc = context.get('perc');\nif (typeof perc == \"undefined\") {\n    perc = 0;\n    context.set('perc', perc);\n}\n\nvar avr = context.get('avr');\nif (typeof avr == \"undefined\") {\n    avr = 0;\n    context.set('avr', avr);\n}\n\nlet price = msg.payload.val.price;\nlet scale = msg.payload.val.scale;\nlet percentile = msg.payload.val.percentile;\nlet average = msg.payload.val.average;\n\nif (typeof percentile == \"undefined\") {\n    percentile = context.get('perc');\n    node.log(\"Replacing undefiened percentile with \" + percentile)\n} else {\n    context.set('perc', percentile);\n}\n\nif (typeof average == \"undefined\") {\n    average = context.get('avr');\n    node.log(\"Replacing undefiened average with \" + average)\n} else {\n    context.set('avr', average);\n}\n\nnode.log(\"Price=\" + price + \" Scale=\" + scale + \" Percentile=\" + percentile + \" Average=\" + average)\n\nmsg = {}\nmsg.payload = [{\n    \"val_price\": price,\n    \"val_scale\": scale,\n    \"val_percentile\": percentile,\n    \"val_average\": average,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -285,8 +432,9 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform heater data",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nlet val = msg.payload.val;\nlet unit = msg.payload.props.unit\n\nlet title = \"Power\"\nif (unit == \"kWh\") {\n    title = \"Energy\"\n}\n\narr = title + \" usage=\" + val.toFixed(2) + unit\nnode.log(arr)\n\nmsg = {}\n\nmsg.payload = [{\n    \"val\": val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;\n",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet val = msg.payload.val;\nlet unit = msg.payload.props.unit\n\nlet title = \"Power\"\nif (unit == \"kWh\") {\n    title = \"Energy\"\n}\n\nnode.log(title + \" usage=\" + val.toFixed(2) + unit)\n\nmsg = {}\nmsg.payload = [{\n    \"val\": val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -304,8 +452,9 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform outdoor tmp",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nlet val = msg.payload.val;\n\narr = \"Outdoor temperature=\" + val.toFixed(2) + \"\\xB0C\"\nnode.log(arr)\n\nmsg = {}\n\nmsg.payload = [{\n    \"out_temp\": val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet val = msg.payload.val;\n\nnode.log(\"Outdoor temperature=\" + val.toFixed(2) + \"\\xB0C\")\n\nmsg = {}\nmsg.payload = [{\n    \"out_temp\": val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -323,8 +472,9 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform floor heating",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nlet p_val = msg.payload.val.p_import;\nlet e_val = msg.payload.val.e_import;\n\narr = \"Power and energy usage = \" + p_val.toFixed(2) + \"W \" + e_val.toFixed(2) + \"kWh\"\nnode.log(arr)\n\nmsg = {}\n\nmsg.payload = [{\n    \"val_e_import\": e_val,\n    \"val_p_import\": p_val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet p_val = msg.payload.val.p_import;\nlet e_val = msg.payload.val.e_import;\n\nnode.log(\"Power and energy usage = \" + p_val.toFixed(2) + \"W \" + e_val.toFixed(2) + \"kWh\")\n\nmsg = {}\nmsg.payload = [{\n    \"val_e_import\": e_val,\n    \"val_p_import\": p_val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -342,7 +492,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform VVB tdata",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nlet temp = msg.payload.val;\nlet unit = msg.payload.props.unit\n\narr = \"Temperature = \" + temp + \"\\xB0\"+ unit\n\nnode.log(arr)\n\nmsg = {}\n\nmsg.payload = [{\n    \"val_temp\": temp,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet temp = msg.payload.val;\nlet unit = msg.payload.props.unit\n\nnode.log(\"Temperature = \" + temp + \"\\xB0\" + unit)\n\nmsg = {}\nmsg.payload = [{\n    \"val_temp\": temp,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
@@ -362,8 +512,9 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform VVB pdata",
-        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nlet arr = dt + \" Host - \" + hostname\nnode.log(\"\")\nnode.log(arr)\nnode.log(\"Topic - \" + msg.topic)\n\nlet power = msg.payload.val;\nlet unit = msg.payload.props.unit\n\nlet title = \"Power\"\nif (unit == \"kWh\") {\n    title = \"Energy\"\n}\n\narr = title + \" usage=\" + power + unit\n\nnode.log(arr)\n\nlet offset = 0\nif (unit == \"kWh\") {\n    offset = 1000000000\n}\n\nmsg = {}\n\nmsg.payload = [{\n    \"val_hpower\": power,\n    \"val_hunit\": unit,\n    \"time\": dt.getTime() * 1000000 + offset\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet power = msg.payload.val;\nlet unit = msg.payload.props.unit\n\nlet title = \"Power\"\nif (unit == \"kWh\") {\n    title = \"Energy\"\n}\n\nnode.log(title + \" usage=\" + power + unit)\n\nlet offset = 0\nif (unit == \"kWh\") {\n    offset = 1000000000\n}\n\nmsg = {}\nmsg.payload = [{\n    \"val_hpower\": power,\n    \"val_hunit\": unit,\n    \"time\": dt.getTime() * 1000000 + offset\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -402,7 +553,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "Transform Hoiax data",
-        "func": "let topic = \"heater/VVB Gulen\";\n\nvar CurrentTemprature;\n\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nif (msg.topic == \"heater/VVB Gulen/EnergiStored\") {\n   context.set(\"EnergyStored\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EnergyTotal\") {\n   context.set(\"EnergyTotal\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EstimatedPower\") {\n   context.set(\"EstimatedPower\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/FillLevel\") {\n   context.set(\"FillLevel\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/TargetTemprature\") {\n   context.set(\"TargetTemprature\", msg.payload);\n}\n\nif (msg.topic == \"heater/VVB Gulen/CurrentTemprature\") {\n   CurrentTemprature = msg.payload;\n   let dt = new Date();\n\n   msg = {}\n   msg.payload = [{\n      \"EnergyStored\": context.get(\"EnergyStored\"),\n      \"EnergyTotal\": context.get(\"EnergyTotal\"),\n      \"EstimatedPower\": context.get(\"EstimatedPower\"),\n      \"FillLevel\": context.get(\"FillLevel\"),\n      \"TargetTemprature\": context.get(\"TargetTemprature\"),\n      \"CurrentTemprature\": CurrentTemprature,\n      \"time\": dt.getTime()*1000000\n   },\n   {\n      \"host\": hostname,\n      \"topic\": topic\n   }];\n\n   let arr = dt + \" Host - \" + hostname\n   node.log(\"\")\n   node.log(arr)\n   node.log(\"Topic - \" + topic)\n   node.log(\"EnergyStored = \" + msg.payload[0].EnergyStored + \"kWh\")\n   node.log(\"EnergyTotal = \" + msg.payload[0].EnergyTotal + \"kWh\")\n   node.log(\"EstimatedPower = \" + msg.payload[0].EstimatedPower + \"W\")\n   node.log(\"FillLevel = \" + msg.payload[0].FillLevel + \"%\")\n   node.log(\"TargetTemprature = \" + msg.payload[0].TargetTemprature + \"\\xB0C\")\n   node.log(\"CurrentTemprature = \" + msg.payload[0].CurrentTemprature + \"\\xB0C\")\n\n   return msg;\n} else {\n   return null;\n}",
+        "func": "let topic = \"heater/VVB Gulen\";\nvar os = global.get('os');\nvar hostname = os.hostname();\nvar CurrentTemprature;\n\nif (msg.topic == \"heater/VVB Gulen/EnergiStored\") {\n   context.set(\"EnergyStored\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EnergyTotal\") {\n   context.set(\"EnergyTotal\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EstimatedPower\") {\n   context.set(\"EstimatedPower\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/FillLevel\") {\n   context.set(\"FillLevel\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/TargetTemprature\") {\n   context.set(\"TargetTemprature\", msg.payload);\n}\n\nif (msg.topic == \"heater/VVB Gulen/CurrentTemprature\") {\n   CurrentTemprature = msg.payload;\n   let dt = new Date();\n\n   msg = {}\n   msg.payload = [{\n      \"EnergyStored\": context.get(\"EnergyStored\"),\n      \"EnergyTotal\": context.get(\"EnergyTotal\"),\n      \"EstimatedPower\": context.get(\"EstimatedPower\"),\n      \"FillLevel\": context.get(\"FillLevel\"),\n      \"TargetTemprature\": context.get(\"TargetTemprature\"),\n      \"CurrentTemprature\": CurrentTemprature,\n      \"time\": dt.getTime()*1000000\n   },\n   {\n      \"host\": hostname,\n      \"topic\": topic\n   }];\n\n   node.log(\"\")\n   node.log(dt + \" Host - \" + hostname)\n   node.log(\"Topic - \" + topic)\n   node.log(\"EnergyStored = \" + msg.payload[0].EnergyStored + \"kWh\")\n   node.log(\"EnergyTotal = \" + msg.payload[0].EnergyTotal + \"kWh\")\n   node.log(\"EstimatedPower = \" + msg.payload[0].EstimatedPower + \"W\")\n   node.log(\"FillLevel = \" + msg.payload[0].FillLevel + \"%\")\n   node.log(\"TargetTemprature = \" + msg.payload[0].TargetTemprature + \"\\xB0C\")\n   node.log(\"CurrentTemprature = \" + msg.payload[0].CurrentTemprature + \"\\xB0C\")\n\n   return msg;\n} else {\n   return null;\n}",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -429,7 +580,7 @@
         "sendError": false,
         "encoding": "none",
         "allProps": true,
-        "x": 770,
+        "x": 510,
         "y": 800,
         "wires": [
             [
@@ -442,47 +593,18 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "getPriceLevel",
-        "func": "let text = msg.payload;\nlet lines = text.split(/\\r?\\n|\\r|\\n/g);\nlet prc = [];\nconst nVal = 4;\nconst freePrice = 0.8;\n\nconst date = new Date();\nlet today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');\nlet hour = date.getHours();\n\nvar tDay, tHour, field, arr;\nlet tVal = 0.0;\nlet tFound = false;\nlet n = 0;\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    if (field[0] == today) {\n        prc[n] = parseFloat(field[8]);\n        let dt = field[1]?.split(':');\n        if (parseInt(dt[0]) >= parseInt(hour) && !tFound) {\n            tVal = prc[n];\n            tDay = field[0];\n            tHour = field[1];\n            tFound = true;\n        }\n        n = n + 1;\n    }\n}\n\nif ( n != 24) {\n    node.log(\"\");\n    node.log(\"Incompleate price information. Only \" + n + \" valuse found for \" + today + \". Exiting ....\");\n    return null;\n}\nif (!tFound) {\n    node.log(\"\");\n    node.log(\"Price for current hour \" + hour + \" not found. Exiting ....\");\n    return null;\n}\n\nprc.sort(function (a, b) { return b - a });\nlet limitVal = prc[nVal - 1];\n\nif (prc[0] < freePrice) {\n    node.log(\"\");\n    node.log(\"Max power price \" + prc[0] + \" to low for setpoint modification\");\n    return null;\n}\n\nif (tVal >= limitVal) {\n    arr = \"Expensive hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal;\n    msg.payload = \"high\";\n} else {\n    arr = \"Cheap hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal;\n    msg.payload = \"low\"\n}\n\nnode.log(\"\")\nnode.log(arr)\n\nreturn msg;",
+        "func": "let text = msg.payload;\nlet lines = text.split(/\\r?\\n|\\r|\\n/g);\nlet prc = [];\nconst nVal = 4;\nconst freePrice = 0.8;\n\nconst date = new Date();\nlet today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');\nlet hour = date.getHours();\n\nvar tDay, tHour, field;\nlet tVal = 0.0;\nlet tFound = false;\nlet n = 0;\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    if (field[0] == today) {\n        prc[n] = parseFloat(field[8]);\n        let dt = field[1]?.split(':');\n        if (parseInt(dt[0]) >= parseInt(hour) && !tFound) {\n            tVal = prc[n];\n            tDay = field[0];\n            tHour = field[1];\n            tFound = true;\n        }\n        n = n + 1;\n    }\n}\n\nif ( n != 24) {\n    node.log(\"\");\n    node.log(\"Incompleate price information. Only \" + n + \" valuse found for \" + today + \". Exiting ....\");\n    return null;\n}\nif (!tFound) {\n    node.log(\"\");\n    node.log(\"Price for current hour \" + hour + \" not found. Exiting ....\");\n    return null;\n}\n\nprc.sort(function (a, b) { return b - a });\nlet limitVal = prc[nVal - 1];\n\nif (prc[0] < freePrice) {\n    node.log(\"\");\n    node.log(\"Max power price \" + prc[0] + \" to low for setpoint modification\");\n    return null;\n}\n\nnode.log(\"\")\nif (tVal >= limitVal) {\n    node.log(\"Expensive hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal);\n    msg.payload = \"high\";\n} else {\n    node.log(\"Cheap hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal);\n    msg.payload = \"low\"\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 300,
-        "y": 900,
-        "wires": [
-            [
-                "ec72048cac707c01"
-            ]
-        ]
-    },
-    {
-        "id": "bff4dea80ca76b2d",
-        "type": "crontinject",
-        "z": "a0e9af9010557c06",
-        "name": "triggerPriceEvaluation",
-        "props": [
-            {
-                "p": "payload"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "crontiMethod": "onCrontime",
-        "crontiArgs": "[\"1 * * * *\"]",
-        "inputs": 0,
-        "hasButton": true,
-        "x": 130,
+        "x": 700,
         "y": 800,
         "wires": [
             [
-                "9a658dc944b44bc3"
+                "c1d3f6ee075b4a74"
             ]
         ]
     },
@@ -490,7 +612,7 @@
         "id": "aecfa90ad10049c1",
         "type": "mqtt in",
         "z": "a0e9af9010557c06",
-        "name": "Futurehome MQTT power",
+        "name": "Futurehome MQTT",
         "topic": "pt:j1/mt:evt/rt:dev/rn:flow/ad:1/sv:out_bin_switch/ad:RbK5JKtuxUFQ3WJ_0",
         "qos": "0",
         "datatype": "json",
@@ -499,7 +621,7 @@
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 110,
+        "x": 90,
         "y": 720,
         "wires": [
             [
@@ -511,14 +633,14 @@
         "id": "12dfb219b56993ef",
         "type": "file",
         "z": "a0e9af9010557c06",
-        "name": "writeState",
+        "name": "writeLocationStatus",
         "filename": "/powerprice/onPremise.state",
         "filenameType": "str",
         "appendNewline": false,
         "createDir": false,
         "overwriteFile": "true",
         "encoding": "none",
-        "x": 580,
+        "x": 530,
         "y": 720,
         "wires": [
             []
@@ -536,7 +658,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 370,
+        "x": 310,
         "y": 720,
         "wires": [
             [
@@ -545,97 +667,153 @@
         ]
     },
     {
-        "id": "9a658dc944b44bc3",
-        "type": "file in",
+        "id": "4c6a6f49ce7e62bd",
+        "type": "cronplus",
         "z": "a0e9af9010557c06",
-        "name": "readLocationStateus",
-        "filename": "/powerprice/onPremise.state",
-        "filenameType": "str",
-        "format": "utf8",
-        "chunk": false,
-        "sendError": false,
-        "encoding": "none",
-        "allProps": false,
-        "x": 380,
+        "name": "triggerPriceEvaluation",
+        "outputField": "payload",
+        "timeZone": "",
+        "storeName": "",
+        "commandResponseMsgOutput": "output1",
+        "defaultLocation": "60.865726858540384 4.877327072044864",
+        "defaultLocationType": "fixed",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "topic1",
+                "payloadType": "date",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "1 * * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 120,
         "y": 800,
         "wires": [
             [
-                "3b7e4f04fc431060"
+                "5a888dee4eb43124"
             ]
         ]
     },
     {
-        "id": "3b7e4f04fc431060",
-        "type": "switch",
+        "id": "3357a7d462cb7a97",
+        "type": "influxdb in",
         "z": "a0e9af9010557c06",
-        "name": "stateSwitch",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "true",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "false",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 2,
-        "x": 590,
-        "y": 800,
+        "influxdb": "c5c8b85e15365152",
+        "name": "Futurehome influxdb",
+        "query": "SELECT INTEGRAL(\"mean\")/3600000 FROM ( SELECT MEAN(\"val\") AS mean \nFROM \"mqtt_consumer\" WHERE (\"topic\" = 'pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:meter_elec/ad:1_1')  AND unit = 'W'\nAND time > now() - 1h GROUP BY time(10s) fill(previous) ) GROUP BY time(1h) tz('Europe/Oslo')",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 560,
+        "y": 880,
         "wires": [
             [
-                "7193348de4b5e51f"
-            ],
-            []
+                "c80a67f6e8fa3421"
+            ]
         ]
     },
     {
-        "id": "f95647d5ee2e73a6",
-        "type": "mqtt out",
-        "z": "a0e9af9010557c06",
-        "name": "Futurehome MQTT update",
-        "topic": "",
-        "qos": "0",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "85661dd20d60814f",
-        "x": 740,
-        "y": 900,
-        "wires": []
-    },
-    {
-        "id": "ec72048cac707c01",
+        "id": "c80a67f6e8fa3421",
         "type": "function",
         "z": "a0e9af9010557c06",
-        "name": "updateSetpoint",
-        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    let arr = \"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i];\n    if (i == 0) {node.log(\"\");}\n    node.log(arr);\n}\n\nreturn [outMsgs];",
+        "name": "evaluatePowerUsage",
+        "func": "let power = msg.payload;\nlet n = power.length - 1;\nconst date = new Date();\nlet current = date.getMinutes();\nconst maxLimit = 4.8;\n\nvar usedP = context.get('usedP');\nif (typeof usedP == \"undefined\") {\n    usedP = \"low\";\n    context.set('usedP', usedP);\n}\n\nlet estimate = 0;\nif (current > 0) {\n    estimate = 60*power[n].integral/current;\n}\n\nmsg = {};\nnode.log(\"\");\nnode.log(\"Used so far \" + power[n].integral.toFixed(2) + \" KWh. Estimated houarly usage \" + estimate.toFixed(2) + \" KWh\");\n\nif (current > 19 && estimate > maxLimit) {\n    msg.payload = \"high\";\n    node.log(\"High estimated power usage. Lowering setpoints\");\n    usedP = \"high\";\n    context.set('usedP', usedP);\n    return msg;\n} else {\n    usedP = context.get('usedP');\n    if (usedP == \"high\") {\n        usedP = \"low\";\n        context.set('usedP', usedP);\n        msg.payload = \"low\";\n        node.log(\"Power usage reset to low\");\n        return msg;\n    }\n    return null;\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
-        "libs": [
-            {
-                "var": "crypto",
-                "module": "crypto"
-            }
-        ],
-        "x": 500,
-        "y": 900,
+        "libs": [],
+        "x": 800,
+        "y": 880,
         "wires": [
             [
-                "f95647d5ee2e73a6"
+                "f154ce39c838aba2"
             ]
         ]
+    },
+    {
+        "id": "14352e8082ab2944",
+        "type": "cronplus",
+        "z": "a0e9af9010557c06",
+        "name": "triggerPowerEvaluation",
+        "outputField": "payload",
+        "timeZone": "",
+        "storeName": "",
+        "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "topic1",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "20,30,35,40,45,50,55 * * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 130,
+        "y": 880,
+        "wires": [
+            [
+                "eb18cbf41c1ee821"
+            ]
+        ]
+    },
+    {
+        "id": "c1d3f6ee075b4a74",
+        "type": "subflow:39eb304ea4c0f999",
+        "z": "a0e9af9010557c06",
+        "name": "changeSetpoint",
+        "x": 900,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "5a888dee4eb43124",
+        "type": "subflow:080343dc07f66e4b",
+        "z": "a0e9af9010557c06",
+        "x": 330,
+        "y": 800,
+        "wires": [
+            [
+                "7193348de4b5e51f"
+            ]
+        ]
+    },
+    {
+        "id": "eb18cbf41c1ee821",
+        "type": "subflow:080343dc07f66e4b",
+        "z": "a0e9af9010557c06",
+        "name": "",
+        "x": 350,
+        "y": 880,
+        "wires": [
+            [
+                "3357a7d462cb7a97"
+            ]
+        ]
+    },
+    {
+        "id": "f154ce39c838aba2",
+        "type": "subflow:39eb304ea4c0f999",
+        "z": "a0e9af9010557c06",
+        "name": "",
+        "x": 1010,
+        "y": 880,
+        "wires": []
     }
 ]
