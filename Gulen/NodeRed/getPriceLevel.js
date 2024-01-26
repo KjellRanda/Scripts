@@ -40,19 +40,21 @@ if (!tFound) {
 
 prc.sort(function (a, b) { return b - a });
 let limitVal = prc[nVal - 1];
+let maxPrice = prc[0];
 
-if (prc[0] < freePrice) {
+let unit = " NOK/KWh"
+if (maxPrice < freePrice) {
     node.log("");
-    node.log("Max power price " + prc[0] + " to low for setpoint modification");
+    node.log("Max power price " + maxPrice + unit + " to low for setpoint modification");
     return null;
 }
 
 node.log("")
 if (tVal >= limitVal) {
-    node.log("Expensive hour: " + tDay + " " + tHour + " Price = " + tVal + " Limit = " + limitVal);
+    node.log("Expensive hour: " + tDay + " " + tHour + " Price = " + tVal + unit + ". Limit = " + limitVal + unit + ". Max price = " + maxPrice + unit + ".");
     msg.payload = "high";
 } else {
-    node.log("Cheap hour: " + tDay + " " + tHour + " Price = " + tVal + " Limit = " + limitVal);
+    node.log("Cheap hour: " + tDay + " " + tHour + " Price = " + tVal + unit + ". Limit = " + limitVal + unit + ". Max price = " + maxPrice + unit + ".");
     msg.payload = "low"
 }
 
