@@ -133,58 +133,58 @@ services:
         depends_on:
             - influxdb
 
-    loki:
-        container_name: loki
-        restart: unless-stopped
-        hostname: loki
-        ports:
-            - '3100'
-        volumes:
-            - '/data/loki:/loki'
-            - '/data/loki/config:/etc/loki'
-            - "/etc/timezone:/etc/timezone:ro"
-            - "/etc/localtime:/etc/localtime:ro"
-        command: -config.file=/etc/loki/local-config.yaml
-        environment:
-            - 'TZ=Europe/Oslo'
-        image: grafana/loki
-        networks:
-            default:
-                ipv4_address: 10.10.0.12
-        labels: 
-            - "com.centurylinklabs.watchtower.monitor-only=true"
-        logging:
-            driver: json-file
-            options:
-                max-size: 10m
-                max-file: 3
+#    loki:
+#        container_name: loki
+#        restart: unless-stopped
+#        hostname: loki
+#        ports:
+#            - '3100'
+#        volumes:
+#            - '/data/loki:/loki'
+#            - '/data/loki/config:/etc/loki'
+#            - "/etc/timezone:/etc/timezone:ro"
+#            - "/etc/localtime:/etc/localtime:ro"
+#        command: -config.file=/etc/loki/local-config.yaml
+#        environment:
+#            - 'TZ=Europe/Oslo'
+#        image: grafana/loki
+#        networks:
+#            default:
+#                ipv4_address: 10.10.0.12
+#        labels: 
+#            - "com.centurylinklabs.watchtower.monitor-only=true"
+#        logging:
+#            driver: json-file
+#            options:
+#                max-size: 10m
+#                max-file: 3
 
-    promtail:
-        container_name: promtail
-        restart: unless-stopped
-        hostname: promtail
-        ports:
-            - '9080:9080'
-        volumes:
-            - /data/loki/promtail-config.yaml:/etc/promtail/config.yml
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/lib/docker/containers:/var/lib/docker/containers:ro
-            - /var/log:/opt/var/log:ro
-        environment:
-            - 'TZ=Europe/Oslo'
-        image: grafana/promtail
-        networks:
-            default:
-                ipv4_address: 10.10.0.13
-        labels: 
-            - "com.centurylinklabs.watchtower.monitor-only=true"
-        logging:
-            driver: json-file
-            options:
-                max-size: 10m
-                max-file: 3
-        depends_on:
-            - loki
+#    promtail:
+#        container_name: promtail
+#        restart: unless-stopped
+#        hostname: promtail
+#        ports:
+#            - '9080:9080'
+#        volumes:
+#            - /data/loki/promtail-config.yaml:/etc/promtail/config.yml
+#            - /var/run/docker.sock:/var/run/docker.sock
+#            - /var/lib/docker/containers:/var/lib/docker/containers:ro
+#            - /var/log:/opt/var/log:ro
+#        environment:
+#            - 'TZ=Europe/Oslo'
+#        image: grafana/promtail
+#        networks:
+#            default:
+#                ipv4_address: 10.10.0.13
+#        labels: 
+#            - "com.centurylinklabs.watchtower.monitor-only=true"
+#        logging:
+#            driver: json-file
+#            options:
+#                max-size: 10m
+#                max-file: 3
+#        depends_on:
+#            - loki
 
     influxdb:
         container_name: influxdb
