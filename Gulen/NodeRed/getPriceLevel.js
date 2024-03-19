@@ -49,13 +49,18 @@ if (maxPrice < freePrice) {
     return null;
 }
 
+msg = {};
+msg.payload = {
+    "price": "",
+    "reason": "price"
+}
 node.log("")
 if (tVal >= limitVal) {
     node.log("Expensive hour: " + tDay + " " + tHour + " Price = " + tVal + unit + ". Limit = " + limitVal + unit + ". Max price = " + maxPrice + unit + ".");
-    msg.payload = "high";
+    msg.payload.price = "high";
 } else {
     node.log("Cheap hour: " + tDay + " " + tHour + " Price = " + tVal + unit + ". Limit = " + limitVal + unit + ". Max price = " + maxPrice + unit + ".");
-    msg.payload = "low"
+    msg.payload.price = "low"
 }
 
 return msg;

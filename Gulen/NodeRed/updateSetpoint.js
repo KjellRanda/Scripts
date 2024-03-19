@@ -5,7 +5,8 @@ const tmp = [20.0, 21.0];
 const tDiff = 2.0;
 
 var outMsgs = [];
-let state = msg.payload;
+let state = msg.payload.price;
+let reason = msg.payload.reason;
 
 var temp;
 for (let i = 0; i < room.length; i++) {
@@ -14,6 +15,9 @@ for (let i = 0; i < room.length; i++) {
     }
     else if (state == "high") {
         temp = tmp[i] - tDiff;
+        if (reason == "usage") {
+            temp = 10.0;
+        }
     }
     else {
         node.log("");
@@ -42,7 +46,11 @@ for (let i = 0; i < room.length; i++) {
     outMsgs.push(msg)
 
     if (i == 0) {node.log("");}
-    node.log("Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+    if (reason == "price") {
+       node.log("Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+    } else {
+        node.log("Power usage " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+    }
 }
 
 return [outMsgs];
