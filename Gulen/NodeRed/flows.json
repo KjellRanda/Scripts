@@ -1,35 +1,5 @@
 [
     {
-        "id": "a0e9af9010557c06",
-        "type": "tab",
-        "label": "Futurehome",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
-        "id": "39eb304ea4c0f999",
-        "type": "subflow",
-        "name": "changeSetpt",
-        "info": "",
-        "category": "",
-        "in": [
-            {
-                "x": 60,
-                "y": 80,
-                "wires": [
-                    {
-                        "id": "ec72048cac707c01"
-                    }
-                ]
-            }
-        ],
-        "out": [],
-        "env": [],
-        "meta": {},
-        "color": "#DDAA99"
-    },
-    {
         "id": "080343dc07f66e4b",
         "type": "subflow",
         "name": "getLocation",
@@ -61,122 +31,6 @@
         "env": [],
         "meta": {},
         "color": "#DDAA99"
-    },
-    {
-        "id": "85661dd20d60814f",
-        "type": "mqtt-broker",
-        "name": "MQTT - Test",
-        "broker": "192.168.86.88",
-        "port": "1884",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
-    },
-    {
-        "id": "c5c8b85e15365152",
-        "type": "influxdb",
-        "hostname": "10.10.0.3",
-        "port": "8086",
-        "protocol": "http",
-        "database": "hansensor",
-        "name": "Fururehome data",
-        "usetls": false,
-        "tls": "",
-        "influxdbVersion": "1.x",
-        "url": "http://localhost:8086",
-        "rejectUnauthorized": false
-    },
-    {
-        "id": "98c2ae69796e599f",
-        "type": "mqtt-broker",
-        "name": "Mosquitto Gulen",
-        "broker": "192.168.86.100",
-        "port": "1883",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthRetain": "false",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closeRetain": "false",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willRetain": "false",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
-    },
-    {
-        "id": "ec72048cac707c01",
-        "type": "function",
-        "z": "39eb304ea4c0f999",
-        "name": "updateSetpoint",
-        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n}\n\nreturn [outMsgs];",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [
-            {
-                "var": "crypto",
-                "module": "crypto"
-            }
-        ],
-        "x": 220,
-        "y": 80,
-        "wires": [
-            [
-                "f95647d5ee2e73a6"
-            ]
-        ]
-    },
-    {
-        "id": "f95647d5ee2e73a6",
-        "type": "mqtt out",
-        "z": "39eb304ea4c0f999",
-        "name": "Futurehome MQTT",
-        "topic": "",
-        "qos": "0",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "85661dd20d60814f",
-        "x": 430,
-        "y": 80,
-        "wires": []
     },
     {
         "id": "9a658dc944b44bc3",
@@ -226,6 +80,79 @@
             [],
             []
         ]
+    },
+    {
+        "id": "39eb304ea4c0f999",
+        "type": "subflow",
+        "name": "changeSetpt",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ec72048cac707c01"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
+        "id": "ec72048cac707c01",
+        "type": "function",
+        "z": "39eb304ea4c0f999",
+        "name": "updateSetpoint",
+        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload.price;\nlet reason = msg.payload.reason;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n        if (reason == \"usage\") {\n            temp = 10.0;\n        }\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    if (reason == \"price\") {\n       node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n    } else {\n        node.log(\"Power usage \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n    }\n}\n\nreturn [outMsgs];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "crypto",
+                "module": "crypto"
+            }
+        ],
+        "x": 220,
+        "y": 80,
+        "wires": [
+            [
+                "f95647d5ee2e73a6"
+            ]
+        ]
+    },
+    {
+        "id": "f95647d5ee2e73a6",
+        "type": "mqtt out",
+        "z": "39eb304ea4c0f999",
+        "name": "Futurehome MQTT",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "85661dd20d60814f",
+        "x": 430,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "a0e9af9010557c06",
+        "type": "tab",
+        "label": "Futurehome",
+        "disabled": false,
+        "info": "",
+        "env": []
     },
     {
         "id": "6394a2cc77f7f9ef",
@@ -593,7 +520,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "getPriceLevel",
-        "func": "let text = msg.payload;\nlet lines = text.split(/\\r?\\n|\\r|\\n/g);\nlet prc = [];\nconst nVal = 4;\nconst freePrice = 0.8;\n\nconst date = new Date();\nlet today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');\nlet hour = date.getHours();\n\nvar tDay, tHour, field;\nlet tVal = 0.0;\nlet tFound = false;\nlet n = 0;\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    if (field[0] == today) {\n        prc[n] = parseFloat(field[8]);\n        let dt = field[1]?.split(':');\n        if (parseInt(dt[0]) >= parseInt(hour) && !tFound) {\n            tVal = prc[n];\n            tDay = field[0];\n            tHour = field[1];\n            tFound = true;\n        }\n        n = n + 1;\n    }\n}\n\nif ( n != 24) {\n    node.log(\"\");\n    node.log(\"Incompleate price information. Only \" + n + \" valuse found for \" + today + \". Exiting ....\");\n    return null;\n}\nif (!tFound) {\n    node.log(\"\");\n    node.log(\"Price for current hour \" + hour + \" not found. Exiting ....\");\n    return null;\n}\n\nprc.sort(function (a, b) { return b - a });\nlet limitVal = prc[nVal - 1];\n\nif (prc[0] < freePrice) {\n    node.log(\"\");\n    node.log(\"Max power price \" + prc[0] + \" to low for setpoint modification\");\n    return null;\n}\n\nnode.log(\"\")\nif (tVal >= limitVal) {\n    node.log(\"Expensive hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal);\n    msg.payload = \"high\";\n} else {\n    node.log(\"Cheap hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + \" Limit = \" + limitVal);\n    msg.payload = \"low\"\n}\n\nreturn msg;",
+        "func": "let text = msg.payload;\nlet lines = text.split(/\\r?\\n|\\r|\\n/g);\nlet prc = [];\nconst nVal = 4;\nconst freePrice = 0.8;\n\nconst date = new Date();\nlet today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');\nlet hour = date.getHours();\n\nvar tDay, tHour, field;\nlet tVal = 0.0;\nlet tFound = false;\nlet n = 0;\nfor (let i = 0; i < lines.length; i++) {\n    field = lines[i].trim().split(/\\s+/);\n    if (field[0] == today) {\n        prc[n] = parseFloat(field[8]);\n        let dt = field[1]?.split(':');\n        if (parseInt(dt[0]) >= parseInt(hour) && !tFound) {\n            tVal = prc[n];\n            tDay = field[0];\n            tHour = field[1];\n            tFound = true;\n        }\n        n = n + 1;\n    }\n}\n\nif ( n != 24) {\n    node.log(\"\");\n    node.log(\"Incompleate price information. Only \" + n + \" valuse found for \" + today + \". Exiting ....\");\n    return null;\n}\nif (!tFound) {\n    node.log(\"\");\n    node.log(\"Price for current hour \" + hour + \" not found. Exiting ....\");\n    return null;\n}\n\nprc.sort(function (a, b) { return b - a });\nlet limitVal = prc[nVal - 1];\nlet maxPrice = prc[0];\n\nlet unit = \" NOK/KWh\"\nif (maxPrice < freePrice) {\n    node.log(\"\");\n    node.log(\"Max power price \" + maxPrice + unit + \" to low for setpoint modification\");\n    return null;\n}\n\nmsg = {};\nmsg.payload = {\n    \"price\": \"\",\n    \"reason\": \"price\"\n}\nnode.log(\"\")\nif (tVal >= limitVal) {\n    node.log(\"Expensive hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + unit + \". Limit = \" + limitVal + unit + \". Max price = \" + maxPrice + unit + \".\");\n    msg.payload.price = \"high\";\n} else {\n    node.log(\"Cheap hour: \" + tDay + \" \" + tHour + \" Price = \" + tVal + unit + \". Limit = \" + limitVal + unit + \". Max price = \" + maxPrice + unit + \".\");\n    msg.payload.price = \"low\"\n}\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -724,7 +651,7 @@
         "type": "function",
         "z": "a0e9af9010557c06",
         "name": "evaluatePowerUsage",
-        "func": "let power = msg.payload;\nlet n = power.length - 1;\nconst date = new Date();\nlet current = date.getMinutes();\nconst maxLimit = 4.8;\n\nvar usedP = context.get('usedP');\nif (typeof usedP == \"undefined\") {\n    usedP = \"low\";\n    context.set('usedP', usedP);\n}\n\nlet estimate = 0;\nif (current > 0) {\n    estimate = 60*power[n].integral/current;\n}\n\nmsg = {};\nnode.log(\"\");\nnode.log(\"Used so far \" + power[n].integral.toFixed(2) + \" KWh. Estimated houarly usage \" + estimate.toFixed(2) + \" KWh\");\n\nif (current > 19 && estimate > maxLimit) {\n    msg.payload = \"high\";\n    node.log(\"High estimated power usage. Lowering setpoints\");\n    usedP = \"high\";\n    context.set('usedP', usedP);\n    return msg;\n} else {\n    usedP = context.get('usedP');\n    if (usedP == \"high\") {\n        usedP = \"low\";\n        context.set('usedP', usedP);\n        msg.payload = \"low\";\n        node.log(\"Power usage reset to low\");\n        return msg;\n    }\n    return null;\n}\nreturn null;",
+        "func": "let power = msg.payload;\nlet n = power.length - 1;\nconst date = new Date();\nlet current = date.getMinutes();\nconst maxLimit = 4.7;\n\nvar usedP = context.get('usedP');\nif (typeof usedP == \"undefined\") {\n    usedP = \"high\";\n    context.set('usedP', usedP);\n}\n\nlet estimate = 0;\nif (current > 0) {\n    estimate = 60*power[n].integral/current;\n}\n\nmsg = {};\nmsg.payload = {\n    \"price\": \"\",\n    \"reason\": \"usage\"\n}\nnode.log(\"\");\nnode.log(\"Used so far \" + power[n].integral.toFixed(2) + \" KWh. Estimated houarly usage \" + estimate.toFixed(2) + \" KWh\");\n\nif (current > 14 && estimate > maxLimit) {\n    msg.payload.price = \"high\";\n    node.log(\"High estimated power usage. Lowering setpoints\");\n    usedP = \"high\";\n    context.set('usedP', usedP);\n    return msg;\n} else {\n    usedP = context.get('usedP');\n    if (usedP == \"high\") {\n        usedP = \"low\";\n        context.set('usedP', usedP);\n        msg.payload.price = \"low\";\n        node.log(\"Power usage reset to low\");\n        return msg;\n    }\n    return null;\n}\nreturn null;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -758,7 +685,7 @@
                 "payloadType": "default",
                 "payload": "",
                 "expressionType": "cron",
-                "expression": "20,30,35,40,45,50,55 * * * *",
+                "expression": "15,25,30,35,40,45,50,55 * * * *",
                 "location": "",
                 "offset": "0",
                 "solarType": "all",
@@ -815,5 +742,78 @@
         "x": 1010,
         "y": 880,
         "wires": []
+    },
+    {
+        "id": "85661dd20d60814f",
+        "type": "mqtt-broker",
+        "name": "MQTT - Test",
+        "broker": "192.168.86.88",
+        "port": "1884",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c5c8b85e15365152",
+        "type": "influxdb",
+        "hostname": "10.10.0.3",
+        "port": "8086",
+        "protocol": "http",
+        "database": "hansensor",
+        "name": "Fururehome data",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "98c2ae69796e599f",
+        "type": "mqtt-broker",
+        "name": "Mosquitto Gulen",
+        "broker": "192.168.86.100",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
     }
 ]
