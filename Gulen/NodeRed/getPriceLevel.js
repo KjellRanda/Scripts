@@ -2,7 +2,7 @@ let text = msg.payload;
 let lines = text.split(/\r?\n|\r|\n/g);
 let prc = [];
 const nVal = 4;
-const freePrice = 0.8;
+const freePrice = 0.5;
 
 const date = new Date();
 let today = date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');
@@ -45,7 +45,7 @@ let maxPrice = prc[0];
 let unit = " NOK/KWh"
 if (maxPrice < freePrice) {
     node.log("");
-    node.log("Max power price " + maxPrice + unit + " to low for setpoint modification");
+    node.log("Max power price " + maxPrice + unit + " to low for setpoint modification Limit = " + freePrice + unit);
     return null;
 }
 
