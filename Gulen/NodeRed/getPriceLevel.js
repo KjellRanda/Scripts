@@ -45,7 +45,7 @@ let maxPrice = prc[0];
 let unit = " NOK/KWh"
 if (maxPrice < freePrice) {
     node.log("");
-    node.log("Max power price " + maxPrice + unit + " to low for setpoint modification Limit = " + freePrice + unit);
+    node.log("Max power price " + maxPrice + unit + " to low for setpoint modification. Limit = " + freePrice + unit);
     return null;
 }
 
