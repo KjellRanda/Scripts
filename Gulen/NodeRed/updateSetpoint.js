@@ -46,10 +46,19 @@ for (let i = 0; i < room.length; i++) {
     outMsgs.push(msg)
 
     if (i == 0) {node.log("");}
-    if (reason == "price") {
-       node.log("Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
-    } else {
-        node.log("Power usage " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+    switch (reason) {
+        case "price":
+            node.log("Power cost " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+            break;
+        case "usage":
+            node.log("Power usage " + state + ". Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+            break;
+        case "reset":
+            node.log("Daily reset to default. Setting setpoint to " + temp + "\xB0C" + " in " + room[i]);
+            break;
+        default:
+            node.log("Unknown setpoint change reason: " + reason +" Exiting ...");
+            return null;
     }
 }
 
