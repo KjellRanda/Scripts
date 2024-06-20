@@ -1,0 +1,19 @@
+[Unit]
+Description=MyUplink to MQTT service
+After=network.target local-fs.target docker.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+
+WorkingDirectory=/data/MyUplink
+
+ExecStart=python3 /data/MyUplink/MyUplinkServer.py >> /tmp/MyUplinkServer.log 2>&1 
+ExecStop=/bin/kill $MAINPID
+
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
