@@ -1,13 +1,13 @@
-import requests
 import json
 import time
 import sys
 import os
 import configparser
 import random
-import paho.mqtt.client as mqtt
 import logging
 import logging.handlers
+import requests
+import paho.mqtt.client as mqtt
 
 VERSION = "0.0.001"
 
@@ -31,20 +31,19 @@ def authorize(BASEURL, USERNAME, PASSWORD):
         "username": USERNAME,
         "password": PASSWORD
     }
-    response = requests.post(authurl, headers=headers, data=payload)
+    response = requests.post(authurl, headers=headers, data=payload, timeout=60)
     if response.status_code == 200:
         tResponse = response.json()
         lifetime = tResponse["expires_in"]
         token = tResponse["access_token"]
         logger.info(f"Got token with lifetime {lifetime}s")
         return token, lifetime
-    else:
-        logger.error(f"Failed to get a token: {response.status_code}")
-        sys.exit(1)
+    logger.error(f"Failed to get a token: {response.status_code}")
+    sys.exit(1)
 
 def getdevID(BASEURL, dheaders):
     url = BASEURL + "/v2/systems/me"
-    response = requests.get(url, headers=dheaders)
+    response = requests.get(url, headers=dheaders, timeout=60)
     if response.status_code == 200:
         sysList = response.json()
         ndev = sysList["numItems"]
@@ -56,15 +55,14 @@ def getdevID(BASEURL, dheaders):
                 name = sys["name"]
             logger.info(f"Found device {devid} with name {name}")
             return devid, name
-    else:
-        logger.error(f"Failed to get devices: {response.status_code}")
-        sys.exit(2)
+    logger.error(f"Failed to get devices: {response.status_code}")
+    sys.exit(2)
 
 def getdevData(BASEURL, dheaders):
     mqttData = []
     params = "406,527,528,404,302,400,303"
     url = BASEURL + "/v2/devices/" + devid + "/points?parameters=" + params
-    response = requests.get(url, headers=dheaders)
+    response = requests.get(url, headers=dheaders, timeout=60)
     if response.status_code == 200:
         dlist = response.json()
         for item in dlist:
@@ -75,9 +73,8 @@ def getdevData(BASEURL, dheaders):
             mqttData.append([item["parameterId"], item["parameterName"], item["value"], unit])
             logger.debug(f'{item["parameterId"]} {item["parameterName"]} {item["value"]} {unit}')
         return mqttData
-    else:
-        logger.error(f"Failed to get device data: {response.status_code}")
-        sys.exit(3)
+    logger.error(f"Failed to get device data: {response.status_code}")
+    sys.exit(3)
 
 def getConfig(kind):
     home = os.path.expanduser("~")
