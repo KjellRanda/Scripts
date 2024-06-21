@@ -9,6 +9,8 @@ import paho.mqtt.client as mqtt
 import logging
 import logging.handlers
 
+VERSION = "0.0.001"
+
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -48,7 +50,6 @@ def getdevID(BASEURL, dheaders):
         ndev = sysList["numItems"]
         for i in range(ndev):
             sys = sysList["systems"][i]
-            
             dev = sys["devices"]
             if sys["securityLevel"] == "admin":
                 devid = dev[0]["id"]
@@ -103,10 +104,8 @@ def on_connect(m_client, userdata, flags, rc):
 
 def on_disconnect(client, userdata,rc=0):
     logger.info(f"DisConnected result code {str(rc)}")
-    client.loop_stop()
 
 def updateMQTT(client, topic, name, mqttData):
-    client.loop_start()
     for items in mqttData:
         ptopic = topic + "/" + name + "/" + capUnspace(items[1])
         if items[0] == '406':
@@ -121,7 +120,6 @@ def updateMQTT(client, topic, name, mqttData):
             logger.debug(f"Sendt `{msg}` to topic `{ptopic}`")
         else:
             logger.error(f"Failed to send message to topic {ptopic} Error code {result[0]}")
-    client.loop_stop()
 
 def capUnspace(s):
     return ''.join( (c.upper() if i == 0 or s[i-1] == ' ' else c) for i, c in enumerate(s) ).replace(" ", "")
@@ -143,6 +141,7 @@ client.on_connect = on_connect
 client.on_disconnect = on_disconnect
 client.username_pw_set(mqttUSER, mqttPASS)
 client.connect(mqttHOST, int(mqttPORT), 600)
+client.loop_start()
 
 while True:
     if tleft < 2*SLEEPTIME:
@@ -157,9 +156,12 @@ while True:
         devid, name = getdevID(BASEURL, dheaders)
 
     mqttData = getdevData(BASEURL, dheaders)
-    
+
     updateMQTT(client, TOPIC, name, mqttData)
 
     time.sleep(SLEEPTIME)
     tleft = tleft - SLEEPTIME
     logger.info(f"Token lifetime left {tleft}s")
+
+client.loop_stop()
+    
