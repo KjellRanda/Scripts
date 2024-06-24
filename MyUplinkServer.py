@@ -58,9 +58,8 @@ def getdevID(BASEURL, dheaders):
     logger.error(f"Failed to get devices: {response.status_code}")
     sys.exit(2)
 
-def getdevData(BASEURL, dheaders):
+def getdevData(BASEURL, dheaders, params):
     mqttData = []
-    params = "406,527,528,404,302,400,303"
     url = BASEURL + "/v2/devices/" + devid + "/points?parameters=" + params
     response = requests.get(url, headers=dheaders, timeout=60)
     if response.status_code == 200:
@@ -90,6 +89,8 @@ def getConfig(kind):
             return config['MQTT']['SERVER'], config['MQTT']['PORT']
         if kind == "TOPIC":
             return config['MQTT']['TOPICBASE']
+        if kind == "DATA":
+            return config['MQTT']['DATALIST']
     except KeyError:
         return ""
 
@@ -125,6 +126,7 @@ def capUnspace(s):
 BASEURL = "https://api.myuplink.com"
 SLEEPTIME = 300
 TOPIC = getConfig("TOPIC")
+DATAL = getConfig("DATA")
 
 devid = ""
 tleft = 0
@@ -152,7 +154,7 @@ while True:
     if devid == "":
         devid, name = getdevID(BASEURL, dheaders)
 
-    mqttData = getdevData(BASEURL, dheaders)
+    mqttData = getdevData(BASEURL, dheaders, DATAL)
 
     updateMQTT(client, TOPIC, name, mqttData)
 
