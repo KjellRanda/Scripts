@@ -91,6 +91,8 @@ def getConfig(kind):
             return config['MQTT']['TOPICBASE']
         if kind == "DATA":
             return config['MQTT']['DATALIST']
+        if kind == "SLEEP":
+            return config['MQTT']['SLEEPTIME']
     except KeyError:
         return ""
 
@@ -113,7 +115,7 @@ def updateMQTT(client, topic, name, mqttData):
                 msg = int(items[2])
             else:
                 msg = items[2]
-        result = client.publish(ptopic, msg)
+        result = client.publish(ptopic, msg, 0, True)
         if result[0] == 0:
             logger.debug(f"Sendt `{msg}` to topic `{ptopic}`")
         else:
@@ -130,10 +132,12 @@ DATAL = getConfig("DATA")
 
 devid = ""
 tleft = 0
+sleep = SLEEPTIME
 
 USERNAME, PASSWORD = getConfig("MYUPLINK")
 mqttUSER, mqttPASS = getConfig("MQTT")
 mqttHOST, mqttPORT = getConfig("MQTTINFO")
+sleep = int(getConfig('SLEEP'))
 
 client = mqtt.Client(f'python-mqtt-{random.randint(0, 1000)}')
 client.on_connect = on_connect
@@ -158,8 +162,8 @@ while True:
 
     updateMQTT(client, TOPIC, name, mqttData)
 
-    time.sleep(SLEEPTIME)
-    tleft = tleft - SLEEPTIME
+    time.sleep(sleep)
+    tleft = tleft - sleep
     logger.info(f"Token lifetime left {tleft}s")
 
 client.loop_stop()
