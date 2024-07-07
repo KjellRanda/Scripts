@@ -77,7 +77,7 @@ def getdevData(BASEURL, dheaders, params):
 
 def getConfig(kind):
     home = os.path.expanduser("~")
-    inifile = home + "/.MyUplinkServer.ini"
+    inifile = home + "/.MyUplink.ini"
     config = configparser.ConfigParser()
     config.read(inifile)
     try:
