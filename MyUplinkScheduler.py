@@ -59,6 +59,19 @@ def getdevID(baseurl):
     logger.error(f"Failed to get devices: {response.status_code}")
     sys.exit(2)
 
+def updateSchedule(BASEURL, devid, json_data):
+    url = BASEURL + "/v2/devices/" + devid + "/weekly-schedules"
+    dheaders = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+    }
+    response = requests.put(url, headers=dheaders, data=json_data, timeout=60)
+    if response.status_code == 200 or response.status_code == 204:
+        logger.info(f"Schedule sucessfully updated: {response.status_code}")
+        return
+    logger.error(f"Failed to update schedule: {response.status_code}")
+    sys.exit(3)
+
 def dailyPriceList(lines):
     pricel = {}
     id = 1
@@ -127,19 +140,6 @@ def getConfig(kind):
             return config['SCHEDULE']['PRICEFILE']
     except KeyError:
         return ""
-
-def updateSchedule(BASEURL, devid, json_data):
-    url = BASEURL + "/v2/devices/" + devid + "/weekly-schedules"
-    dheaders = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-    }
-    response = requests.put(url, headers=dheaders, data=json_data, timeout=60)
-    if response.status_code == 200 or response.status_code == 204:
-        logger.info(f"Schedule sucessfully updated: {response.status_code}")
-        return
-    logger.error(f"Failed to update schedule: {response.status_code}")
-    sys.exit(1)
 
 BASEURL = "https://internalapi.myuplink.com"
 
