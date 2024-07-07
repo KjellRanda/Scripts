@@ -29,7 +29,7 @@ def authorize(BASEURL, USERNAME, PASSWORD):
         "password": PASSWORD
     }
     url = BASEURL + "/oauth/token"
-    response = requests.post(url, headers=headers, data=payload)
+    response = requests.post(url, headers=headers, data=payload, timeout=60)
     if response.status_code == 200:
         tResponse = response.json()
         lifetime = tResponse["expires_in"]
@@ -47,7 +47,7 @@ def getdevID(baseurl):
         "Content-Type": "application/x-www-form-urlencoded",
         "Authorization": "Bearer " + token
     }
-    response = requests.get(url, headers=dheaders)
+    response = requests.get(url, headers=dheaders, timeout=60)
     if response.status_code == 200:
         sysList = response.json()
         for item in sysList["groups"]:
@@ -134,7 +134,7 @@ def updateSchedule(BASEURL, devid, json_data):
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token
     }
-    response = requests.put(url, headers=dheaders, data=json_data)
+    response = requests.put(url, headers=dheaders, data=json_data, timeout=60)
     if response.status_code == 200 or response.status_code == 204:
         logger.info(f"Schedule sucessfully updated: {response.status_code}")
         return
