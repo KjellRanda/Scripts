@@ -6,6 +6,7 @@ import configparser
 import logging
 import logging.handlers
 import requests
+import holidays
 
 VERSION = "0.0.001"
 
@@ -114,6 +115,54 @@ def buildJsonPrice(pricel):
             usedMode = mode
     return pjson
 
+def readGridFee(nFile):
+    f = open(nFile)
+    allLines = f.readlines()[2: ]
+    f.close()
+
+    price = [None]*4
+    n = 0
+    for line in allLines:
+        arr = line.replace("\n", "").split()
+        price[n] = float(arr[3])/100
+        price[n+1] = float(arr[4])/100
+        n += 2
+    return price
+
+def getGridFee(price, date):
+    winter = [1,2,3]
+    weekend = [5,6]
+
+    no_holidays = holidays.NO()
+    day = datetime.strptime(date, "%Y-%m-%d").date()
+
+    wend = False
+    wnt = False
+    if day.weekday() in weekend or day in no_holidays:
+        wend = True
+    if day.month in winter:
+        wnt = True
+
+    prc = [0]*24
+    for i in range(len(prc)):
+        if wnt:
+            if wend:
+                prc[i] = price[1]
+            else:
+                if (i < 6 or i > 21):
+                    prc[i] = price[1]
+                else:
+                    prc[i] = price[0]
+        else:
+            if wend:
+                prc[i] = price[3]
+            else:
+                if (i < 6 or i > 21):
+                    prc[i] = price[3]
+                else:
+                    prc[i] = price[2]
+    return prc
+
 def getConfig(kind):
     home = os.path.expanduser("~")
     inifile = home + "/.MyUplink.ini"
@@ -138,6 +187,8 @@ def getConfig(kind):
             return config['SCHEDULE']['MEDIUMHOURS']
         if kind == "PRICE":
             return config['SCHEDULE']['PRICEFILE']
+        if kind == "GRIDFEE":
+            return config['SCHEDULE']['GRIDFEE']
     except KeyError:
         return ""
 
@@ -150,6 +201,7 @@ USERNAME, PASSWORD = getConfig("MYUPLINK")
 MaxPowerHours = int(getConfig("CHEAPH"))
 MediumPowerHours = int(getConfig("MEDIUMH"))
 priceFile = getConfig("PRICE")
+nFile = getConfig("GRIDFEE")
 
 token, tleft = authorize(BASEURL,USERNAME, PASSWORD)
 
@@ -159,21 +211,28 @@ f = open(priceFile)
 logger.info(f"Reading powerprice from {priceFile}")
 allLines = f.readlines()[1: ]
 f.close()
-n1 = 0
 
+price = readGridFee(nFile)
+
+n1 = 0
 for i in range(2):
     lines = allLines[n1:n1+24]
     n1 += 24
     pricel = dailyPriceList(lines)
 
+    pdate = pricel[1]['sdate']
+    wday = weekdays[datetime.strptime(pdate, '%Y-%m-%d').weekday()]
+    logger.info(f"Date {pdate} is weekday {wday}")
+
+    prc = getGridFee(price, pdate)
+
+    for j in range(len(prc)):
+        pricel[j+1]['price'] = f"{prc[j]+float(pricel[j+1]['price']):.4f}"
+
     slist = sorted(pricel.items(), key=lambda item: float(item[1]['price']), reverse=False)
     pricesd = dict(slist)
 
     pricel = updatePriceList(pricel, pricesd, MaxPowerHours, MediumPowerHours)
-
-    pdate = pricel[1]['sdate']
-    wday = weekdays[datetime.strptime(pdate, '%Y-%m-%d').weekday()]
-    logger.info(f"Date {pdate} is weekday {wday}")
 
     pjson = buildJsonPrice(pricel)
     if i == 0:
