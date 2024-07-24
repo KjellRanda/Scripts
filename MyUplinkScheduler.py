@@ -213,6 +213,7 @@ allLines = f.readlines()[1: ]
 f.close()
 
 price = readGridFee(nFile)
+logger.info(f"Reading gridfee from {nFile}")
 
 n1 = 0
 for i in range(2):
