@@ -1,35 +1,5 @@
 [
     {
-        "id": "a0e9af9010557c06",
-        "type": "tab",
-        "label": "Futurehome",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
-        "id": "39eb304ea4c0f999",
-        "type": "subflow",
-        "name": "changeSetpt",
-        "info": "",
-        "category": "",
-        "in": [
-            {
-                "x": 60,
-                "y": 80,
-                "wires": [
-                    {
-                        "id": "ec72048cac707c01"
-                    }
-                ]
-            }
-        ],
-        "out": [],
-        "env": [],
-        "meta": {},
-        "color": "#DDAA99"
-    },
-    {
         "id": "080343dc07f66e4b",
         "type": "subflow",
         "name": "getLocation",
@@ -61,122 +31,6 @@
         "env": [],
         "meta": {},
         "color": "#DDAA99"
-    },
-    {
-        "id": "85661dd20d60814f",
-        "type": "mqtt-broker",
-        "name": "MQTT - Test",
-        "broker": "192.168.86.88",
-        "port": "1884",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
-    },
-    {
-        "id": "c5c8b85e15365152",
-        "type": "influxdb",
-        "hostname": "10.10.0.3",
-        "port": "8086",
-        "protocol": "http",
-        "database": "hansensor",
-        "name": "Fururehome data",
-        "usetls": false,
-        "tls": "",
-        "influxdbVersion": "1.x",
-        "url": "http://localhost:8086",
-        "rejectUnauthorized": false
-    },
-    {
-        "id": "98c2ae69796e599f",
-        "type": "mqtt-broker",
-        "name": "Mosquitto Gulen",
-        "broker": "192.168.86.100",
-        "port": "1883",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthRetain": "false",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closeRetain": "false",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willRetain": "false",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
-    },
-    {
-        "id": "ec72048cac707c01",
-        "type": "function",
-        "z": "39eb304ea4c0f999",
-        "name": "updateSetpoint",
-        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload.price;\nlet reason = msg.payload.reason;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n        if (reason == \"usage\") {\n            temp = 10.0;\n        }\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    switch (reason) {\n        case \"price\":\n            node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"usage\":\n            node.log(\"Power usage \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"reset\":\n            node.log(\"Daily reset to default. Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        default:\n            node.log(\"Unknown setpoint change reason: \" + reason +\" Exiting ...\");\n            return null;\n    }\n}\n\nreturn [outMsgs];",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [
-            {
-                "var": "crypto",
-                "module": "crypto"
-            }
-        ],
-        "x": 220,
-        "y": 80,
-        "wires": [
-            [
-                "f95647d5ee2e73a6"
-            ]
-        ]
-    },
-    {
-        "id": "f95647d5ee2e73a6",
-        "type": "mqtt out",
-        "z": "39eb304ea4c0f999",
-        "name": "Futurehome MQTT",
-        "topic": "",
-        "qos": "0",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "85661dd20d60814f",
-        "x": 430,
-        "y": 80,
-        "wires": []
     },
     {
         "id": "9a658dc944b44bc3",
@@ -228,6 +82,79 @@
         ]
     },
     {
+        "id": "39eb304ea4c0f999",
+        "type": "subflow",
+        "name": "changeSetpt",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ec72048cac707c01"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
+        "id": "ec72048cac707c01",
+        "type": "function",
+        "z": "39eb304ea4c0f999",
+        "name": "updateSetpoint",
+        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload.price;\nlet reason = msg.payload.reason;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n        if (reason == \"usage\") {\n            temp = 10.0;\n        }\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    switch (reason) {\n        case \"price\":\n            node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"usage\":\n            node.log(\"Power usage \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"reset\":\n            node.log(\"Daily reset to default. Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        default:\n            node.log(\"Unknown setpoint change reason: \" + reason +\" Exiting ...\");\n            return null;\n    }\n}\n\nreturn [outMsgs];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "crypto",
+                "module": "crypto"
+            }
+        ],
+        "x": 220,
+        "y": 80,
+        "wires": [
+            [
+                "f95647d5ee2e73a6"
+            ]
+        ]
+    },
+    {
+        "id": "f95647d5ee2e73a6",
+        "type": "mqtt out",
+        "z": "39eb304ea4c0f999",
+        "name": "Futurehome MQTT",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "85661dd20d60814f",
+        "x": 430,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "a0e9af9010557c06",
+        "type": "tab",
+        "label": "Futurehome",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "6394a2cc77f7f9ef",
         "type": "mqtt in",
         "z": "a0e9af9010557c06",
@@ -241,7 +168,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 90,
-        "y": 320,
+        "y": 340,
         "wires": [
             [
                 "d0e35dc017c72c2d"
@@ -262,8 +189,8 @@
         "retentionPolicyV18Flux": "",
         "org": "organisation",
         "bucket": "bucket",
-        "x": 1150,
-        "y": 320,
+        "x": 1160,
+        "y": 340,
         "wires": []
     },
     {
@@ -336,7 +263,7 @@
             },
             {
                 "t": "eq",
-                "v": "pt:j1/mt:evt/rt:dev/rn:netatmo/ad:1/sv:sensor_temp/ad:020000291b06",
+                "v": "pt:j1/mt:evt/rt:dev/rn:netatmo/ad:1/sv:sensor_temp/ad:020000b5700c",
                 "vt": "str"
             },
             {
@@ -358,13 +285,18 @@
                 "t": "eq",
                 "v": "pt:j1/mt:evt/rt:dev/rn:hoiax/ad:1/sv:meter_elec/ad:1",
                 "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "pt:j1/mt:evt/rt:dev/rn:netatmo/ad:1/sv:sensor_humid/ad:030000085b92",
+                "vt": "str"
             }
         ],
         "checkall": "false",
         "repair": false,
-        "outputs": 13,
+        "outputs": 14,
         "x": 270,
-        "y": 320,
+        "y": 340,
         "wires": [
             [
                 "95fbb6bd3a07f985"
@@ -404,6 +336,9 @@
             ],
             [
                 "7fad03395657dd04"
+            ],
+            [
+                "543eca8ac5d5e275"
             ]
         ]
     },
@@ -544,27 +479,7 @@
         "y": 640,
         "wires": [
             [
-                "581e9bb39fb7bc86"
-            ]
-        ]
-    },
-    {
-        "id": "581e9bb39fb7bc86",
-        "type": "function",
-        "z": "a0e9af9010557c06",
-        "name": "Transform Hoiax data",
-        "func": "let topic = \"heater/VVB Gulen\";\nvar os = global.get('os');\nvar hostname = os.hostname();\nvar CurrentTemprature;\n\nif (msg.topic == \"heater/VVB Gulen/EnergiStored\") {\n   context.set(\"EnergyStored\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EnergyTotal\") {\n   context.set(\"EnergyTotal\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EstimatedPower\") {\n   context.set(\"EstimatedPower\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/FillLevel\") {\n   context.set(\"FillLevel\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/TargetTemprature\") {\n   context.set(\"TargetTemprature\", msg.payload);\n}\n\nif (msg.topic == \"heater/VVB Gulen/CurrentTemprature\") {\n   CurrentTemprature = msg.payload;\n   let dt = new Date();\n\n   msg = {}\n   msg.payload = [{\n      \"EnergyStored\": context.get(\"EnergyStored\"),\n      \"EnergyTotal\": context.get(\"EnergyTotal\"),\n      \"EstimatedPower\": context.get(\"EstimatedPower\"),\n      \"FillLevel\": context.get(\"FillLevel\"),\n      \"TargetTemprature\": context.get(\"TargetTemprature\"),\n      \"CurrentTemprature\": CurrentTemprature,\n      \"time\": dt.getTime()*1000000\n   },\n   {\n      \"host\": hostname,\n      \"topic\": topic\n   }];\n\n   node.log(\"\")\n   node.log(dt + \" Host - \" + hostname)\n   node.log(\"Topic - \" + topic)\n   node.log(\"EnergyStored = \" + msg.payload[0].EnergyStored + \"kWh\")\n   node.log(\"EnergyTotal = \" + msg.payload[0].EnergyTotal + \"kWh\")\n   node.log(\"EstimatedPower = \" + msg.payload[0].EstimatedPower + \"W\")\n   node.log(\"FillLevel = \" + msg.payload[0].FillLevel + \"%\")\n   node.log(\"TargetTemprature = \" + msg.payload[0].TargetTemprature + \"\\xB0C\")\n   node.log(\"CurrentTemprature = \" + msg.payload[0].CurrentTemprature + \"\\xB0C\")\n\n   return msg;\n} else {\n   return null;\n}",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 680,
-        "y": 640,
-        "wires": [
-            [
-                "6ea7aa223e221b58"
+                "c09dea829e0e1606"
             ]
         ]
     },
@@ -891,5 +806,118 @@
         "x": 710,
         "y": 960,
         "wires": []
+    },
+    {
+        "id": "c09dea829e0e1606",
+        "type": "function",
+        "z": "a0e9af9010557c06",
+        "name": "Transform Hoiax data",
+        "func": "let topic = \"heater/VVB Gulen\";\nvar os = global.get('os');\nvar hostname = os.hostname();\nvar Temperature;\n\nif (msg.topic == \"heater/VVB Gulen/StoredEnergy\") {\n   context.set(\"StoredEnergy\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/TotalEnergyUsed\") {\n   context.set(\"TotalEnergyUsed\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/EstimatedPower\") {\n   context.set(\"EstimatedPower\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/FillLevel\") {\n   context.set(\"FillLevel\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/Setpoint\") {\n   context.set(\"Setpoint\", msg.payload);\n}\nif (msg.topic == \"heater/VVB Gulen/CurrentProgram\") {\n   context.set(\"CurrentProgram\", msg.payload);\n}\n\nif (msg.topic == \"heater/VVB Gulen/Temperature\") {\n   Temperature = msg.payload;\n   let dt = new Date();\n\n   msg = {}\n   msg.payload = [{\n      \"CurrentProgram\": context.get(\"CurrentProgram\"),\n      \"EnergyStored\": context.get(\"StoredEnergy\"),\n      \"EnergyTotal\": context.get(\"TotalEnergyUsed\"),\n      \"EstimatedPower\": context.get(\"EstimatedPower\"),\n      \"FillLevel\": context.get(\"FillLevel\"),\n      \"TargetTemprature\": context.get(\"Setpoint\"),\n      \"CurrentTemprature\": Temperature,\n      \"time\": dt.getTime()*1000000\n   },\n   {\n      \"host\": hostname,\n      \"topic\": topic\n   }];\n\n   node.log(\"\")\n   node.log(dt + \" Host - \" + hostname)\n   node.log(\"Topic - \" + topic)\n   node.log(\"CurrentProgram = \" + msg.payload[0].CurrentProgram)\n   node.log(\"StoredEnergy = \" + msg.payload[0].EnergyStored + \"kWh\")\n   node.log(\"TotalEnergyUsed = \" + msg.payload[0].EnergyTotal + \"kWh\")\n   node.log(\"EstimatedPower = \" + msg.payload[0].EstimatedPower + \"W\")\n   node.log(\"FillLevel = \" + msg.payload[0].FillLevel + \"%\")\n   node.log(\"Setpoint = \" + msg.payload[0].TargetTemprature + \"\\xB0C\")\n   node.log(\"Temprature = \" + msg.payload[0].CurrentTemprature + \"\\xB0C\")\n\n   return msg;\n} else {\n   return null;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 640,
+        "wires": [
+            [
+                "6ea7aa223e221b58"
+            ]
+        ]
+    },
+    {
+        "id": "543eca8ac5d5e275",
+        "type": "function",
+        "z": "a0e9af9010557c06",
+        "name": "Transform basemnt hum",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet val = msg.payload.val;\n\nnode.log(\"Basement huidity=\" + val + \"%\")\n\nmsg = {}\nmsg.payload = [{\n    \"bsmnt_humid\": val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 560,
+        "wires": [
+            [
+                "6ea7aa223e221b58"
+            ]
+        ]
+    },
+    {
+        "id": "85661dd20d60814f",
+        "type": "mqtt-broker",
+        "name": "MQTT - Test",
+        "broker": "192.168.86.88",
+        "port": "1884",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c5c8b85e15365152",
+        "type": "influxdb",
+        "hostname": "10.10.0.3",
+        "port": "8086",
+        "protocol": "http",
+        "database": "hansensor",
+        "name": "Fururehome data",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "98c2ae69796e599f",
+        "type": "mqtt-broker",
+        "name": "Mosquitto Gulen",
+        "broker": "192.168.86.100",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
     }
 ]
