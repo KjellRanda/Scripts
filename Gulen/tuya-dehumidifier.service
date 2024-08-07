@@ -1,0 +1,19 @@
+[Unit]
+Description=Read data from Tuya based dehumidifier
+After=network.target local-fs.target docker.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+
+WorkingDirectory=/data/tuya
+
+ExecStart=python3 /data/tuya/tuya-dehumidifier.py >> /tmp/tuya-dehumidifier.py 2>&1 
+ExecStop=/bin/kill $MAINPID
+
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
