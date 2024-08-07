@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.12"]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -21,6 +21,7 @@ jobs:
         pip install lxml
         pip install influxdb
         pip install paho-mqtt
+        pip install tinytuya
         pip install pylint
     - name: Analysing the code with pylint
       run: |

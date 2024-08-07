@@ -3,3 +3,4 @@ hoiax.env
 .entsoe.ini
 .grafana-backup.json
 .MyUplink.ini
+devices.json
