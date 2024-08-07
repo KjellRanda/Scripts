@@ -1,7 +1,17 @@
 import time
 import json
+import logging
+import logging.handlers
 import tinytuya
 from influxdb import InfluxDBClient
+
+logger = logging.getLogger('__name__')
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler = logging.handlers.RotatingFileHandler("tuya-dehumidifier.log", mode='a', maxBytes=8388608, backupCount=16)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.info("Starting ...")
 
 DEVICEFILE = "devices.json"
 
@@ -31,6 +41,6 @@ while True:
             message += '"' + str(map[item]['code']) + '": "' + str(devdata['dps'][item]) + '", '
     message = message[:-2]
     message += '}}]'
-    print(json.dumps(json.loads(message), indent=4))
+    logger.info(json.dumps(json.loads(message), indent=4))
     client.write_points(json.loads(message))
     time.sleep(600)
