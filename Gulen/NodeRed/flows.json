@@ -1,5 +1,35 @@
 [
     {
+        "id": "a0e9af9010557c06",
+        "type": "tab",
+        "label": "Futurehome",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "39eb304ea4c0f999",
+        "type": "subflow",
+        "name": "changeSetpt",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ec72048cac707c01"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
+    },
+    {
         "id": "080343dc07f66e4b",
         "type": "subflow",
         "name": "getLocation",
@@ -18,12 +48,22 @@
         ],
         "out": [
             {
-                "x": 600,
-                "y": 80,
+                "x": 620,
+                "y": 60,
                 "wires": [
                     {
                         "id": "3b7e4f04fc431060",
                         "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 620,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "3b7e4f04fc431060",
+                        "port": 1
                     }
                 ]
             }
@@ -31,6 +71,122 @@
         "env": [],
         "meta": {},
         "color": "#DDAA99"
+    },
+    {
+        "id": "85661dd20d60814f",
+        "type": "mqtt-broker",
+        "name": "MQTT - Test",
+        "broker": "192.168.86.88",
+        "port": "1884",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c5c8b85e15365152",
+        "type": "influxdb",
+        "hostname": "10.10.0.3",
+        "port": "8086",
+        "protocol": "http",
+        "database": "hansensor",
+        "name": "Fururehome data",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "98c2ae69796e599f",
+        "type": "mqtt-broker",
+        "name": "Mosquitto Gulen",
+        "broker": "192.168.86.100",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "ec72048cac707c01",
+        "type": "function",
+        "z": "39eb304ea4c0f999",
+        "name": "updateSetpoint",
+        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload.price;\nlet reason = msg.payload.reason;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n        if (reason == \"usage\") {\n            temp = 10.0;\n        }\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    switch (reason) {\n        case \"price\":\n            node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"usage\":\n            node.log(\"Power usage \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"reset\":\n            node.log(\"Daily reset to default. Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        default:\n            node.log(\"Unknown setpoint change reason: \" + reason +\" Exiting ...\");\n            return null;\n    }\n}\n\nreturn [outMsgs];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "crypto",
+                "module": "crypto"
+            }
+        ],
+        "x": 220,
+        "y": 80,
+        "wires": [
+            [
+                "f95647d5ee2e73a6"
+            ]
+        ]
+    },
+    {
+        "id": "f95647d5ee2e73a6",
+        "type": "mqtt out",
+        "z": "39eb304ea4c0f999",
+        "name": "Futurehome MQTT",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "85661dd20d60814f",
+        "x": 430,
+        "y": 80,
+        "wires": []
     },
     {
         "id": "9a658dc944b44bc3",
@@ -82,79 +238,6 @@
         ]
     },
     {
-        "id": "39eb304ea4c0f999",
-        "type": "subflow",
-        "name": "changeSetpt",
-        "info": "",
-        "category": "",
-        "in": [
-            {
-                "x": 60,
-                "y": 80,
-                "wires": [
-                    {
-                        "id": "ec72048cac707c01"
-                    }
-                ]
-            }
-        ],
-        "out": [],
-        "env": [],
-        "meta": {},
-        "color": "#DDAA99"
-    },
-    {
-        "id": "ec72048cac707c01",
-        "type": "function",
-        "z": "39eb304ea4c0f999",
-        "name": "updateSetpoint",
-        "func": "const room = [\"Entrance\", \"Bathroom\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:6_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:thermostat/ad:5_1\"];\nconst tmp = [20.0, 21.0];\nconst tDiff = 2.0;\n\nvar outMsgs = [];\nlet state = msg.payload.price;\nlet reason = msg.payload.reason;\n\nvar temp;\nfor (let i = 0; i < room.length; i++) {\n    if (state == \"low\") {\n        temp = tmp[i];\n    }\n    else if (state == \"high\") {\n        temp = tmp[i] - tDiff;\n        if (reason == \"usage\") {\n            temp = 10.0;\n        }\n    }\n    else {\n        node.log(\"\");\n        node.log(\"Unknown payload received. Exiting ....\");\n        node.log(state);\n        return null;\n    }\n\n    msg = {};\n    msg.topic = tp[i]\n    msg.payload = {\n        \"serv\": \"thermostat\",\n        \"type\": \"cmd.setpoint.set\",\n        \"val_t\": \"str_map\",\n        \"val\": {\n            \"temp\": String(temp),\n            \"type\": \"heat\",\n            \"unit\": \"C\"\n        },\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID()\n    }\n    outMsgs.push(msg)\n\n    if (i == 0) {node.log(\"\");}\n    switch (reason) {\n        case \"price\":\n            node.log(\"Power cost \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"usage\":\n            node.log(\"Power usage \" + state + \". Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        case \"reset\":\n            node.log(\"Daily reset to default. Setting setpoint to \" + temp + \"\\xB0C\" + \" in \" + room[i]);\n            break;\n        default:\n            node.log(\"Unknown setpoint change reason: \" + reason +\" Exiting ...\");\n            return null;\n    }\n}\n\nreturn [outMsgs];",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [
-            {
-                "var": "crypto",
-                "module": "crypto"
-            }
-        ],
-        "x": 220,
-        "y": 80,
-        "wires": [
-            [
-                "f95647d5ee2e73a6"
-            ]
-        ]
-    },
-    {
-        "id": "f95647d5ee2e73a6",
-        "type": "mqtt out",
-        "z": "39eb304ea4c0f999",
-        "name": "Futurehome MQTT",
-        "topic": "",
-        "qos": "0",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "85661dd20d60814f",
-        "x": 430,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "a0e9af9010557c06",
-        "type": "tab",
-        "label": "Futurehome",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "6394a2cc77f7f9ef",
         "type": "mqtt in",
         "z": "a0e9af9010557c06",
@@ -168,7 +251,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 90,
-        "y": 340,
+        "y": 360,
         "wires": [
             [
                 "d0e35dc017c72c2d"
@@ -190,7 +273,7 @@
         "org": "organisation",
         "bucket": "bucket",
         "x": 1160,
-        "y": 340,
+        "y": 360,
         "wires": []
     },
     {
@@ -290,13 +373,18 @@
                 "t": "eq",
                 "v": "pt:j1/mt:evt/rt:dev/rn:netatmo/ad:1/sv:sensor_humid/ad:030000085b92",
                 "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "pt:j1/mt:evt/rt:dev/rn:netatmo/ad:1/sv:sensor_temp/ad:030000085b92",
+                "vt": "str"
             }
         ],
         "checkall": "false",
         "repair": false,
-        "outputs": 14,
+        "outputs": 15,
         "x": 270,
-        "y": 340,
+        "y": 360,
         "wires": [
             [
                 "95fbb6bd3a07f985"
@@ -339,6 +427,9 @@
             ],
             [
                 "543eca8ac5d5e275"
+            ],
+            [
+                "33ccf2b70cbf4ef4"
             ]
         ]
     },
@@ -414,7 +505,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 680,
+        "x": 690,
         "y": 380,
         "wires": [
             [
@@ -476,7 +567,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 80,
-        "y": 640,
+        "y": 680,
         "wires": [
             [
                 "c09dea829e0e1606"
@@ -496,7 +587,7 @@
         "encoding": "none",
         "allProps": true,
         "x": 510,
-        "y": 800,
+        "y": 840,
         "wires": [
             [
                 "365eb4fb71f9b4e2"
@@ -516,7 +607,7 @@
         "finalize": "",
         "libs": [],
         "x": 700,
-        "y": 800,
+        "y": 840,
         "wires": [
             [
                 "c1d3f6ee075b4a74"
@@ -537,7 +628,7 @@
         "rh": 0,
         "inputs": 0,
         "x": 90,
-        "y": 720,
+        "y": 760,
         "wires": [
             [
                 "adead18ed8ec1f2e"
@@ -556,7 +647,7 @@
         "overwriteFile": "true",
         "encoding": "none",
         "x": 530,
-        "y": 720,
+        "y": 760,
         "wires": [
             []
         ]
@@ -574,7 +665,7 @@
         "finalize": "",
         "libs": [],
         "x": 310,
-        "y": 720,
+        "y": 760,
         "wires": [
             [
                 "12dfb219b56993ef"
@@ -608,7 +699,7 @@
             }
         ],
         "x": 120,
-        "y": 800,
+        "y": 840,
         "wires": [
             [
                 "5a888dee4eb43124"
@@ -627,7 +718,7 @@
         "retentionPolicy": "",
         "org": "organisation",
         "x": 560,
-        "y": 880,
+        "y": 920,
         "wires": [
             [
                 "c80a67f6e8fa3421"
@@ -647,7 +738,7 @@
         "finalize": "",
         "libs": [],
         "x": 800,
-        "y": 880,
+        "y": 920,
         "wires": [
             [
                 "f154ce39c838aba2"
@@ -681,7 +772,7 @@
             }
         ],
         "x": 130,
-        "y": 880,
+        "y": 920,
         "wires": [
             [
                 "eb18cbf41c1ee821"
@@ -694,7 +785,7 @@
         "z": "a0e9af9010557c06",
         "name": "changeSetpoint",
         "x": 900,
-        "y": 800,
+        "y": 840,
         "wires": []
     },
     {
@@ -702,11 +793,12 @@
         "type": "subflow:080343dc07f66e4b",
         "z": "a0e9af9010557c06",
         "x": 330,
-        "y": 800,
+        "y": 840,
         "wires": [
             [
                 "7193348de4b5e51f"
-            ]
+            ],
+            []
         ]
     },
     {
@@ -715,11 +807,12 @@
         "z": "a0e9af9010557c06",
         "name": "",
         "x": 350,
-        "y": 880,
+        "y": 920,
         "wires": [
             [
                 "3357a7d462cb7a97"
-            ]
+            ],
+            []
         ]
     },
     {
@@ -728,7 +821,7 @@
         "z": "a0e9af9010557c06",
         "name": "",
         "x": 1010,
-        "y": 880,
+        "y": 920,
         "wires": []
     },
     {
@@ -758,7 +851,7 @@
             }
         ],
         "x": 120,
-        "y": 960,
+        "y": 1000,
         "wires": [
             [
                 "cfe29ecd4f94a52b"
@@ -771,11 +864,12 @@
         "z": "a0e9af9010557c06",
         "name": "",
         "x": 330,
-        "y": 960,
+        "y": 1000,
         "wires": [
             [
                 "be45de3bae729fa9"
-            ]
+            ],
+            []
         ]
     },
     {
@@ -791,7 +885,7 @@
         "finalize": "",
         "libs": [],
         "x": 520,
-        "y": 960,
+        "y": 1000,
         "wires": [
             [
                 "19061ffbb1cf2931"
@@ -804,7 +898,7 @@
         "z": "a0e9af9010557c06",
         "name": "",
         "x": 710,
-        "y": 960,
+        "y": 1000,
         "wires": []
     },
     {
@@ -820,7 +914,7 @@
         "finalize": "",
         "libs": [],
         "x": 680,
-        "y": 640,
+        "y": 680,
         "wires": [
             [
                 "6ea7aa223e221b58"
@@ -848,76 +942,253 @@
         ]
     },
     {
-        "id": "85661dd20d60814f",
-        "type": "mqtt-broker",
-        "name": "MQTT - Test",
-        "broker": "192.168.86.88",
-        "port": "1884",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
+        "id": "33ccf2b70cbf4ef4",
+        "type": "function",
+        "z": "a0e9af9010557c06",
+        "name": "Transform basemnt temp",
+        "func": "let dt = new Date(msg.payload.ctime);\nlet topic = msg.topic;\nvar os = global.get('os');\nvar hostname = os.hostname();\n\nnode.log(\"\")\nnode.log(dt + \" Host - \" + hostname)\nnode.log(\"Topic - \" + msg.topic)\n\nlet val = msg.payload.val;\n\nnode.log(\"Basement temperature=\" + val.toFixed(2) + \"\\xB0C\")\n\nmsg = {}\nmsg.payload = [{\n    \"bsmnt_temp\": val,\n    \"time\": dt.getTime() * 1000000\n},\n{\n    \"host\": hostname,\n    \"topic\": topic\n}];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 620,
+        "wires": [
+            [
+                "6ea7aa223e221b58"
+            ]
+        ]
     },
     {
-        "id": "c5c8b85e15365152",
-        "type": "influxdb",
-        "hostname": "10.10.0.3",
-        "port": "8086",
-        "protocol": "http",
-        "database": "hansensor",
-        "name": "Fururehome data",
-        "usetls": false,
-        "tls": "",
-        "influxdbVersion": "1.x",
-        "url": "http://localhost:8086",
-        "rejectUnauthorized": false
+        "id": "3752f4fe1e0467b7",
+        "type": "tuya-smart-device",
+        "z": "a0e9af9010557c06",
+        "deviceName": "Dehumidifier",
+        "disableAutoStart": false,
+        "deviceId": "",
+        "deviceKey": "",
+        "storeAsCreds": true,
+        "deviceIp": "192.168.86.133",
+        "retryTimeout": 1000,
+        "findTimeout": 10000,
+        "tuyaVersion": "3.3",
+        "eventMode": "event-data",
+        "logLevel": "log-level-debug",
+        "x": 830,
+        "y": 1300,
+        "wires": [
+            [
+                "12c8c7c5c2cd698d"
+            ],
+            [
+                "eaed45b901c424b1"
+            ]
+        ]
     },
     {
-        "id": "98c2ae69796e599f",
-        "type": "mqtt-broker",
-        "name": "Mosquitto Gulen",
-        "broker": "192.168.86.100",
-        "port": "1883",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "autoUnsubscribe": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthRetain": "false",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closeRetain": "false",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willRetain": "false",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
+        "id": "eaed45b901c424b1",
+        "type": "debug",
+        "z": "a0e9af9010557c06",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1000,
+        "y": 1340,
+        "wires": []
+    },
+    {
+        "id": "12c8c7c5c2cd698d",
+        "type": "debug",
+        "z": "a0e9af9010557c06",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1000,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "7af35775aeb7fe08",
+        "type": "cronplus",
+        "z": "a0e9af9010557c06",
+        "name": "Trigger dedumidifier",
+        "outputField": "payload",
+        "timeZone": "",
+        "storeName": "",
+        "commandResponseMsgOutput": "output1",
+        "defaultLocation": "",
+        "defaultLocationType": "default",
+        "outputs": 1,
+        "options": [
+            {
+                "name": "schedule1",
+                "topic": "topic1",
+                "payloadType": "default",
+                "payload": "",
+                "expressionType": "cron",
+                "expression": "0 */15 * * * *",
+                "location": "",
+                "offset": "0",
+                "solarType": "all",
+                "solarEvents": "sunrise,sunset"
+            }
+        ],
+        "x": 120,
+        "y": 1120,
+        "wires": [
+            [
+                "88c12126792971ac",
+                "92fc7e0da5a8e225"
+            ]
+        ]
+    },
+    {
+        "id": "88c12126792971ac",
+        "type": "influxdb in",
+        "z": "a0e9af9010557c06",
+        "influxdb": "c5c8b85e15365152",
+        "name": "Futurehome influxdb",
+        "query": "select last(bsmnt_humid) from mqtt_consumer where time > now() - 1h",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "organisation",
+        "x": 360,
+        "y": 1120,
+        "wires": [
+            [
+                "bb7afab3c6777851"
+            ]
+        ]
+    },
+    {
+        "id": "dba6b3c169b84199",
+        "type": "function",
+        "z": "a0e9af9010557c06",
+        "name": "dehumidifierControl",
+        "func": "let pay = msg.payload[1];\nlet n = pay.length - 1;\nlet humid = pay[n].last;\nlet loc = msg.payload[0];\n\nvar HIGH, LOW\n\nif (loc == \"true\") {\n   HIGH = 65\n   LOW = 60\n} else {\n    HIGH = 67\n    LOW = 62\n}\nnode.log(\"\")\nnode.log(\"In Gulen=\"+ loc + \" Basement humidity=\" + humid + \" Low limit=\" + LOW + \" High limit=\" + HIGH);\n\nlet msg1 = {};\nlet msg2 = {};\nmsg1.payload = {\"operation\":\"GET\",\"schema\":true};\nif (humid > HIGH ) {\n    node.log(\"Humidity in basement high. Turning dedumidifier on\")\n    msg2.payload = {\"operation\": \"SET\", \"dps\": 1, \"set\": true};\n}\nelse if (humid < LOW) {\n    node.log(\"Humidity in basement low. Turning dedumidifier off\")\n    msg2.payload = {\"operation\": \"SET\", \"dps\": 1, \"set\": false};\n} else {\n    node.log(\"Humidity in basement within limits\")\n    return msg1;\n}\nreturn [msg1,msg2];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 1300,
+        "wires": [
+            [
+                "f7bb408c7ddd1f92"
+            ],
+            [
+                "3752f4fe1e0467b7"
+            ]
+        ]
+    },
+    {
+        "id": "f7bb408c7ddd1f92",
+        "type": "delay",
+        "z": "a0e9af9010557c06",
+        "name": "waitForUpdate",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 620,
+        "y": 1280,
+        "wires": [
+            [
+                "3752f4fe1e0467b7"
+            ]
+        ]
+    },
+    {
+        "id": "92fc7e0da5a8e225",
+        "type": "subflow:080343dc07f66e4b",
+        "z": "a0e9af9010557c06",
+        "name": "",
+        "x": 350,
+        "y": 1200,
+        "wires": [
+            [
+                "fdc33e84eb4a1fdf"
+            ],
+            [
+                "fdc33e84eb4a1fdf"
+            ]
+        ]
+    },
+    {
+        "id": "fdc33e84eb4a1fdf",
+        "type": "join",
+        "z": "a0e9af9010557c06",
+        "name": "mergeMessages",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "useparts": true,
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 870,
+        "y": 1120,
+        "wires": [
+            [
+                "dba6b3c169b84199"
+            ]
+        ]
+    },
+    {
+        "id": "bb7afab3c6777851",
+        "type": "delay",
+        "z": "a0e9af9010557c06",
+        "name": "delayMessage",
+        "pauseType": "delay",
+        "timeout": "3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 580,
+        "y": 1120,
+        "wires": [
+            [
+                "fdc33e84eb4a1fdf"
+            ]
+        ]
     }
 ]
