@@ -19,14 +19,14 @@ let msg1 = {};
 let msg2 = {};
 msg1.payload = {"operation":"GET","schema":true};
 if (humid > HIGH ) {
-    node.log("Humidity in basement high. Turning dedumidifier on")
+    node.log("Humidity in basement high. Turning dehumidifier on.")
     msg2.payload = {"operation": "SET", "dps": 1, "set": true};
 }
 else if (humid < LOW) {
-    node.log("Humidity in basement low. Turning dedumidifier off")
+    node.log("Humidity in basement low. Turning dehumidifier off.")
     msg2.payload = {"operation": "SET", "dps": 1, "set": false};
 } else {
-    node.log("Humidity in basement within limits")
+    node.log("Humidity in basement within limits.")
     return msg1;
 }
 return [msg1,msg2];
