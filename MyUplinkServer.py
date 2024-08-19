@@ -9,11 +9,12 @@ import logging.handlers
 import requests
 import paho.mqtt.client as mqtt
 
-VERSION = "0.0.001"
+VERSION = "0.0.002"
 
+script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+formatter = logging.Formatter('%(asctime)s ' + script_name + ' ver:' + str(VERSION) + ' %(levelname)s %(message)s')
 handler = logging.handlers.RotatingFileHandler("MyUplinkServer.log", mode='a', maxBytes=8388608, backupCount=16)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
