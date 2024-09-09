@@ -8,6 +8,14 @@
         "env": []
     },
     {
+        "id": "9b2b0ccee26db551",
+        "type": "tab",
+        "label": "Dehumidifier",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "39eb304ea4c0f999",
         "type": "subflow",
         "name": "changeSetpt",
@@ -144,6 +152,123 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
+    },
+    {
+        "id": "0c89a0a022473f01",
+        "type": "ui_group",
+        "name": "Tuya",
+        "tab": "f9a0ef72420204a4",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f9a0ef72420204a4",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "bbcdfc162448acae",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
     },
     {
         "id": "ec72048cac707c01",
@@ -850,7 +975,7 @@
                 "solarEvents": "sunrise,sunset"
             }
         ],
-        "x": 120,
+        "x": 100,
         "y": 1000,
         "wires": [
             [
@@ -962,9 +1087,9 @@
         ]
     },
     {
-        "id": "3752f4fe1e0467b7",
+        "id": "8ccb3045bc13a3c8",
         "type": "tuya-smart-device",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "deviceName": "Dehumidifier",
         "disableAutoStart": false,
         "deviceId": "",
@@ -976,53 +1101,19 @@
         "tuyaVersion": "3.3",
         "eventMode": "event-data",
         "logLevel": "log-level-debug",
-        "x": 830,
-        "y": 1300,
+        "x": 770,
+        "y": 220,
         "wires": [
             [
-                "12c8c7c5c2cd698d"
+                "60a0bb78049e7b71"
             ],
-            [
-                "eaed45b901c424b1"
-            ]
+            []
         ]
     },
     {
-        "id": "eaed45b901c424b1",
-        "type": "debug",
-        "z": "a0e9af9010557c06",
-        "name": "debug 1",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1000,
-        "y": 1340,
-        "wires": []
-    },
-    {
-        "id": "12c8c7c5c2cd698d",
-        "type": "debug",
-        "z": "a0e9af9010557c06",
-        "name": "debug 2",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1000,
-        "y": 1260,
-        "wires": []
-    },
-    {
-        "id": "7af35775aeb7fe08",
+        "id": "8803f0d765cc6c76",
         "type": "cronplus",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "name": "Trigger dedumidifier",
         "outputField": "payload",
         "timeZone": "",
@@ -1046,18 +1137,18 @@
             }
         ],
         "x": 120,
-        "y": 1120,
+        "y": 80,
         "wires": [
             [
-                "88c12126792971ac",
-                "92fc7e0da5a8e225"
+                "d6c5d685c158127f",
+                "8a1aeef9d8386cc9"
             ]
         ]
     },
     {
-        "id": "88c12126792971ac",
+        "id": "d6c5d685c158127f",
         "type": "influxdb in",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "influxdb": "c5c8b85e15365152",
         "name": "Futurehome influxdb",
         "query": "select last(bsmnt_humid) from mqtt_consumer where time > now() - 1h",
@@ -1066,40 +1157,40 @@
         "retentionPolicy": "",
         "org": "organisation",
         "x": 360,
-        "y": 1120,
+        "y": 80,
         "wires": [
             [
-                "bb7afab3c6777851"
+                "393b348f69fdf544"
             ]
         ]
     },
     {
-        "id": "dba6b3c169b84199",
+        "id": "8c3aedac78fb997d",
         "type": "function",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "name": "dehumidifierControl",
-        "func": "let pay = msg.payload[1];\nlet n = pay.length - 1;\nlet humid = pay[n].last;\nlet loc = msg.payload[0];\n\nvar HIGH, LOW\n\nif (loc == \"true\") {\n   HIGH = 65\n   LOW = 60\n} else {\n    HIGH = 67\n    LOW = 62\n}\nnode.log(\"\")\nnode.log(\"In Gulen=\"+ loc + \" Basement humidity=\" + humid + \" Low limit=\" + LOW + \" High limit=\" + HIGH);\n\nlet msg1 = {};\nlet msg2 = {};\nmsg1.payload = {\"operation\":\"GET\",\"schema\":true};\nif (humid > HIGH ) {\n    node.log(\"Humidity in basement high. Turning dedumidifier on\")\n    msg2.payload = {\"operation\": \"SET\", \"dps\": 1, \"set\": true};\n}\nelse if (humid < LOW) {\n    node.log(\"Humidity in basement low. Turning dedumidifier off\")\n    msg2.payload = {\"operation\": \"SET\", \"dps\": 1, \"set\": false};\n} else {\n    node.log(\"Humidity in basement within limits\")\n    return msg1;\n}\nreturn [msg1,msg2];",
+        "func": "let pay = msg.payload[1];\nlet n = pay.length - 1;\nlet humid = pay[n].last;\nlet loc = msg.payload[0];\n\nvar HIGH, LOW\n\nif (loc == \"true\") {\n   HIGH = 65\n   LOW = 60\n} else {\n    HIGH = 67\n    LOW = 62\n}\nnode.log(\"\")\nnode.log(\"In Gulen=\"+ loc + \" Basement humidity=\" + humid + \" Low limit=\" + LOW + \" High limit=\" + HIGH);\n\nlet msg1 = {};\nlet msg2 = {};\nmsg1.payload = {\"operation\":\"GET\",\"schema\":true};\nif (humid > HIGH ) {\n    node.log(\"Humidity in basement high. Turning dehumidifier on.\")\n    msg2.payload = {\"operation\": \"SET\", \"dps\": 1, \"set\": true};\n}\nelse if (humid < LOW) {\n    node.log(\"Humidity in basement low. Turning dehumidifier off.\")\n    msg2.payload = {\"operation\": \"SET\", \"dps\": 1, \"set\": false};\n} else {\n    node.log(\"Humidity in basement within limits.\")\n    return msg1;\n}\nreturn [msg1,msg2];",
         "outputs": 2,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 370,
-        "y": 1300,
+        "x": 350,
+        "y": 220,
         "wires": [
             [
-                "f7bb408c7ddd1f92"
+                "a3b8fb52244df278"
             ],
             [
-                "3752f4fe1e0467b7"
+                "8ccb3045bc13a3c8"
             ]
         ]
     },
     {
-        "id": "f7bb408c7ddd1f92",
+        "id": "a3b8fb52244df278",
         "type": "delay",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "name": "waitForUpdate",
         "pauseType": "delay",
         "timeout": "5",
@@ -1113,34 +1204,34 @@
         "drop": false,
         "allowrate": false,
         "outputs": 1,
-        "x": 620,
-        "y": 1280,
+        "x": 580,
+        "y": 180,
         "wires": [
             [
-                "3752f4fe1e0467b7"
+                "8ccb3045bc13a3c8"
             ]
         ]
     },
     {
-        "id": "92fc7e0da5a8e225",
+        "id": "8a1aeef9d8386cc9",
         "type": "subflow:080343dc07f66e4b",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "name": "",
-        "x": 350,
-        "y": 1200,
+        "x": 330,
+        "y": 140,
         "wires": [
             [
-                "fdc33e84eb4a1fdf"
+                "bbd80f1153464deb"
             ],
             [
-                "fdc33e84eb4a1fdf"
+                "bbd80f1153464deb"
             ]
         ]
     },
     {
-        "id": "fdc33e84eb4a1fdf",
+        "id": "bbd80f1153464deb",
         "type": "join",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "name": "mergeMessages",
         "mode": "custom",
         "build": "array",
@@ -1158,18 +1249,18 @@
         "reduceInit": "",
         "reduceInitType": "",
         "reduceFixup": "",
-        "x": 870,
-        "y": 1120,
+        "x": 790,
+        "y": 80,
         "wires": [
             [
-                "dba6b3c169b84199"
+                "8c3aedac78fb997d"
             ]
         ]
     },
     {
-        "id": "bb7afab3c6777851",
+        "id": "393b348f69fdf544",
         "type": "delay",
-        "z": "a0e9af9010557c06",
+        "z": "9b2b0ccee26db551",
         "name": "delayMessage",
         "pauseType": "delay",
         "timeout": "3",
@@ -1184,10 +1275,80 @@
         "allowrate": false,
         "outputs": 1,
         "x": 580,
-        "y": 1120,
+        "y": 80,
         "wires": [
             [
-                "fdc33e84eb4a1fdf"
+                "bbd80f1153464deb"
+            ]
+        ]
+    },
+    {
+        "id": "b225355b48be7c18",
+        "type": "ui_text",
+        "z": "9b2b0ccee26db551",
+        "group": "0c89a0a022473f01",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Dehumidifier power status",
+        "label": "Dehumidifier status:",
+        "format": "{{msg.payload.power}}",
+        "layout": "row-left",
+        "className": "",
+        "style": true,
+        "font": "Lucida Sans Unicode,Lucida Grande,sans-serif",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 610,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "c17f4995bf4f601e",
+        "type": "ui_gauge",
+        "z": "9b2b0ccee26db551",
+        "name": "Dehumidifier speed",
+        "group": "0c89a0a022473f01",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Dehumidifier speed:",
+        "label": "",
+        "format": "{{msg.payload.speed}}",
+        "min": "0",
+        "max": "3",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 590,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "60a0bb78049e7b71",
+        "type": "function",
+        "z": "9b2b0ccee26db551",
+        "name": "dehumidifierInfo",
+        "func": "let retmsg = {};\nretmsg.payload = {};\n\nlet dps = msg.payload.data.dps;\n\nif (dps[4] === \"low\") {\n    retmsg.payload.speed = 1;\n} else if (dps[4] === \"mid\") {\n    retmsg.payload.speed = 2;\n} else if (dps[4] === \"high\") {\n    retmsg.payload.speed = 3;\n}\n\nif (dps[1] === true) {\n    retmsg.payload.power = \"Powered on\";\n} else {\n    retmsg.payload.power = \"Powered off\";\n    retmsg.payload.speed = 0;\n}\n\nnode.log(\"\")\nnode.log(\"Dehumidifier status=\" + retmsg.payload.power + \". Speed=\" + dps[4]);\n\nreturn retmsg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 300,
+        "wires": [
+            [
+                "b225355b48be7c18",
+                "c17f4995bf4f601e"
             ]
         ]
     }
