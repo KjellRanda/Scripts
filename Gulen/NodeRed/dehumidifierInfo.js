@@ -9,6 +9,8 @@ if (dps[4] === "low") {
     retmsg.payload.speed = 2;
 } else if (dps[4] === "high") {
     retmsg.payload.speed = 3;
+} else {
+    return null;
 }
 
 if (dps[1] === true) {
