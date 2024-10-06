@@ -16,6 +16,14 @@
         "env": []
     },
     {
+        "id": "984cde0c4f1d3ae7",
+        "type": "tab",
+        "label": "Lights",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "39eb304ea4c0f999",
         "type": "subflow",
         "name": "changeSetpt",
@@ -287,7 +295,7 @@
                 "module": "crypto"
             }
         ],
-        "x": 220,
+        "x": 240,
         "y": 80,
         "wires": [
             [
@@ -309,7 +317,7 @@
         "correl": "",
         "expiry": "",
         "broker": "85661dd20d60814f",
-        "x": 430,
+        "x": 450,
         "y": 80,
         "wires": []
     },
@@ -1101,11 +1109,12 @@
         "tuyaVersion": "3.3",
         "eventMode": "event-data",
         "logLevel": "log-level-debug",
-        "x": 770,
+        "x": 790,
         "y": 220,
         "wires": [
             [
-                "60a0bb78049e7b71"
+                "60a0bb78049e7b71",
+                "849e85f520d5f9d9"
             ],
             []
         ]
@@ -1114,7 +1123,7 @@
         "id": "8803f0d765cc6c76",
         "type": "cronplus",
         "z": "9b2b0ccee26db551",
-        "name": "Trigger dedumidifier",
+        "name": "Trigger dehumidifier",
         "outputField": "payload",
         "timeZone": "",
         "storeName": "",
@@ -1249,7 +1258,7 @@
         "reduceInit": "",
         "reduceInitType": "",
         "reduceFixup": "",
-        "x": 790,
+        "x": 810,
         "y": 80,
         "wires": [
             [
@@ -1293,14 +1302,14 @@
         "name": "Dehumidifier power status",
         "label": "Dehumidifier status:",
         "format": "{{msg.payload.power}}",
-        "layout": "row-left",
+        "layout": "row-center",
         "className": "",
         "style": true,
         "font": "Lucida Sans Unicode,Lucida Grande,sans-serif",
         "fontSize": 16,
         "color": "#000000",
-        "x": 610,
-        "y": 300,
+        "x": 1210,
+        "y": 200,
         "wires": []
     },
     {
@@ -1327,8 +1336,8 @@
         "seg2": "",
         "diff": false,
         "className": "",
-        "x": 590,
-        "y": 360,
+        "x": 1190,
+        "y": 240,
         "wires": []
     },
     {
@@ -1336,20 +1345,321 @@
         "type": "function",
         "z": "9b2b0ccee26db551",
         "name": "dehumidifierInfo",
-        "func": "let retmsg = {};\nretmsg.payload = {};\n\nlet dps = msg.payload.data.dps;\n\nif (dps[4] === \"low\") {\n    retmsg.payload.speed = 1;\n} else if (dps[4] === \"mid\") {\n    retmsg.payload.speed = 2;\n} else if (dps[4] === \"high\") {\n    retmsg.payload.speed = 3;\n}\n\nif (dps[1] === true) {\n    retmsg.payload.power = \"Powered on\";\n} else {\n    retmsg.payload.power = \"Powered off\";\n    retmsg.payload.speed = 0;\n}\n\nnode.log(\"\")\nnode.log(\"Dehumidifier status=\" + retmsg.payload.power + \". Speed=\" + dps[4]);\n\nreturn retmsg;",
+        "func": "let retmsg = {};\nretmsg.payload = {};\n\nlet dps = msg.payload.data.dps;\n\nif (dps[4] === \"low\") {\n    retmsg.payload.speed = 1;\n} else if (dps[4] === \"mid\") {\n    retmsg.payload.speed = 2;\n} else if (dps[4] === \"high\") {\n    retmsg.payload.speed = 3;\n} else {\n    return null;\n}\n\nif (dps[1] === true) {\n    retmsg.payload.power = \"Powered on\";\n} else {\n    retmsg.payload.power = \"Powered off\";\n    retmsg.payload.speed = 0;\n}\n\nnode.log(\"\")\nnode.log(\"Dehumidifier status=\" + retmsg.payload.power + \". Speed=\" + dps[4]);\n\nreturn retmsg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 340,
-        "y": 300,
+        "x": 980,
+        "y": 220,
         "wires": [
             [
                 "b225355b48be7c18",
                 "c17f4995bf4f601e"
             ]
         ]
+    },
+    {
+        "id": "6331b0f94bf4b0bc",
+        "type": "rbe",
+        "z": "9b2b0ccee26db551",
+        "name": "blockNotChanged",
+        "func": "rbei",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": false,
+        "property": "payload",
+        "topi": "topic",
+        "x": 570,
+        "y": 300,
+        "wires": [
+            [
+                "9799f04a2d95ebd1"
+            ]
+        ]
+    },
+    {
+        "id": "849e85f520d5f9d9",
+        "type": "change",
+        "z": "9b2b0ccee26db551",
+        "name": "setOnOffStatus",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "msg.payload.data.dps[1]",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 300,
+        "wires": [
+            [
+                "6331b0f94bf4b0bc"
+            ]
+        ]
+    },
+    {
+        "id": "5eb0586413c1c6d5",
+        "type": "pushover",
+        "z": "9b2b0ccee26db551",
+        "name": "sendPushoverNotification",
+        "device": "",
+        "title": "",
+        "priority": 0,
+        "sound": "",
+        "url": "",
+        "url_title": "",
+        "html": false,
+        "x": 1210,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "9799f04a2d95ebd1",
+        "type": "switch",
+        "z": "9b2b0ccee26db551",
+        "name": "checkStatus",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 790,
+        "y": 300,
+        "wires": [
+            [
+                "4ea307438472c615"
+            ],
+            [
+                "8ddb7be54bf62edf"
+            ]
+        ]
+    },
+    {
+        "id": "4ea307438472c615",
+        "type": "change",
+        "z": "9b2b0ccee26db551",
+        "name": "dehumidifierOn",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "<font color=\"green\">Dehumidifier is turned <b>on and running.</b></font>",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "Dehumidifier is turned on",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "timestamp",
+                "pt": "msg",
+                "to": "",
+                "tot": "date"
+            },
+            {
+                "t": "set",
+                "p": "html",
+                "pt": "msg",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 980,
+        "y": 280,
+        "wires": [
+            [
+                "5eb0586413c1c6d5"
+            ]
+        ]
+    },
+    {
+        "id": "8ddb7be54bf62edf",
+        "type": "change",
+        "z": "9b2b0ccee26db551",
+        "name": "dehumidifierOff",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "<font color=\"red\">Dehumidifier is turned <b>off and is not running.</b></font>",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "Dehumidifier is turned off",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "timestamp",
+                "pt": "msg",
+                "to": "",
+                "tot": "date"
+            },
+            {
+                "t": "set",
+                "p": "html",
+                "pt": "msg",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 980,
+        "y": 320,
+        "wires": [
+            [
+                "5eb0586413c1c6d5"
+            ]
+        ]
+    },
+    {
+        "id": "e5ae851a59098ae3",
+        "type": "mqtt in",
+        "z": "984cde0c4f1d3ae7",
+        "name": "Futurehome MQTT",
+        "topic": "pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:scene_ctrl/#",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "85661dd20d60814f",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 180,
+        "wires": [
+            [
+                "7352719e3d5ddfbf"
+            ]
+        ]
+    },
+    {
+        "id": "7352719e3d5ddfbf",
+        "type": "switch",
+        "z": "984cde0c4f1d3ae7",
+        "name": "Light switch",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:scene_ctrl/ad:17_1",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:scene_ctrl/ad:17_2",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:scene_ctrl/ad:17_3",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "pt:j1/mt:evt/rt:dev/rn:zigbee/ad:1/sv:scene_ctrl/ad:17_4",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 310,
+        "y": 180,
+        "wires": [
+            [
+                "d4db56c5194bd3bd"
+            ],
+            [
+                "d4db56c5194bd3bd"
+            ],
+            [
+                "d4db56c5194bd3bd"
+            ],
+            [
+                "d4db56c5194bd3bd"
+            ]
+        ]
+    },
+    {
+        "id": "d4db56c5194bd3bd",
+        "type": "function",
+        "z": "984cde0c4f1d3ae7",
+        "name": "toggleLights",
+        "func": "const light = [\"Spot1\", \"Spot2\", \"Leselampe\", \"Taklampe\", \"Golvlampe\",\n               \"Lampetter\", \"Gang\", \"Soverom nede\", \"Loft1\", \"Loft2\"];\nconst tp = [\"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:15_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:16_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:10_11\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:11_11\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:2_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zw/ad:1/sv:out_lvl_switch/ad:12_0\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:12_11\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:3_1\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:13_11\",\n            \"pt:j1/mt:cmd/rt:dev/rn:zigbee/ad:1/sv:out_lvl_switch/ad:14_11\"];\nconst index = [0,6,7,8,10]\n\nvar outMsgs = [];\nvar value;\n\nif (msg.payload.val == \"on\") {\n    value = true;\n} else if (msg.payload.val == \"off\") {\n    value = false;\n} else {\n    return null;\n}\nlet n = parseInt(msg.topic.slice(-1)) -1;\nfor (let i = index[n]; i < index[n+1]; i++ ) {\n    var tmpMsg = {};\n    tmpMsg.topic = tp[i]\n    tmpMsg.payload = {\n        \"serv\": \"out_bin_switch\",\n        \"type\": \"cmd.binary.set\",\n        \"val_t\": \"bool\",\n        \"val\": value,\n        \"props\": null,\n        \"tags\": null,\n        \"src\": \"node-red\",\n        \"ver\": \"1\",\n        \"uid\": crypto.randomUUID(),\n        \"topic\": tp[i]\n    }\n    outMsgs.push(tmpMsg)\n}\nreturn [outMsgs];",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "crypto",
+                "module": "crypto"
+            }
+        ],
+        "x": 510,
+        "y": 180,
+        "wires": [
+            [
+                "96d658fd2d2307c7"
+            ]
+        ]
+    },
+    {
+        "id": "96d658fd2d2307c7",
+        "type": "mqtt out",
+        "z": "984cde0c4f1d3ae7",
+        "name": "Futurehome MQTT",
+        "topic": "",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "85661dd20d60814f",
+        "x": 730,
+        "y": 180,
+        "wires": []
     }
 ]
