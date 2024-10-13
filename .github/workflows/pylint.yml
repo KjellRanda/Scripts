@@ -23,6 +23,7 @@ jobs:
         pip install paho-mqtt
         pip install tinytuya
         pip install beautifulsoup4
+        pip install holidays
         pip install pandas
         pip install pylint
     - name: Analysing the code with pylint
