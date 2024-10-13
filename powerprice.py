@@ -10,6 +10,8 @@ from io import StringIO, BytesIO
 import re
 import requests
 from lxml import etree as ET
+import pandas as pd
+import numpy as np
 
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
@@ -74,18 +76,19 @@ def parseXML(xml, lxslt):
     for i in root.findall('./TimeSeries/Period'):
         res = i.find('resolution')
         tstart = i.find('timeInterval/start')
-        t1 = datetime.strptime(datetime_from_utc_to_local(tstart.text),'%Y-%m-%d %H:%M')
+        t0 = datetime.strptime(datetime_from_utc_to_local(tstart.text),'%Y-%m-%d %H:%M')
+        td = timedelta(minutes=int(re.findall(r'\d+', res.text)[0]))
         for j in i.findall('Point'):
             period = j.find('position')
             price = j.find('price.amount')
-            t2 = t1 + timedelta(minutes=int(re.findall(r'\d+', res.text)[0]))
+            t1 = t0 + td*(int(period.text) - 1)
+            t2 = t1 + td
             a = []
             a.append(t1)
             a.append(t2)
             a.append(int(period.text))
             a.append(float(price.text))
             rlist.append(a)
-            t1 = t2
     return rlist
 
 def valutaKursNB():
@@ -136,6 +139,42 @@ def getConfig():
         return config['ENTSOE']['APIKEY']
     except KeyError:
         return ""
+    
+def fixPriceInfo(rlist):
+    newList = []
+    td = timedelta(minutes=60)
+    n = 1
+    j = 0
+
+    nlist =24
+    if len(rlist) > 24:
+        nlist = 48
+
+    for i in range(nlist):
+        n1 = rlist[j][2]
+        if n1 == n:
+            newList.append(rlist[j])
+            j += 1
+        else:
+            newItem = []
+            newItem.append(newList[-1][0] + td)
+            newItem.append(newList[-1][1] + td)
+            newItem.append(n)
+            newItem.append(np.nan)
+            newList.append(newItem)
+        n += 1
+        if n1 == 24:
+            n = 1
+    
+    arr = []
+    for i in range(len(newList)):
+        arr.append(newList[i][3])
+    arrpd = pd.Series(arr)
+    arrpd = arrpd.interpolate(method="linear")
+    for i in range(len(newList)):
+        newList[i][3] = float(arrpd.values[i])
+
+    return newList
 
 def main(argv):
     """
@@ -160,6 +199,8 @@ def main(argv):
 
     xmlResponse = getEntsoePrice(areacode, apikey)
     timeprice = parseXML(xmlResponse, xslt)
+    if len(timeprice) != 48 or len(timeprice) != 24:
+        timeprice = fixPriceInfo(timeprice)
     currency = valutaKursNB()
     prc = float(currency['data']['dataSets'][0]['series']['0:0:0:0']['observations']['0'][0])
 
