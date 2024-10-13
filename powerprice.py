@@ -7,13 +7,14 @@ import os
 import time
 import configparser
 from io import StringIO, BytesIO
+import logging
+import logging.handlers
 import re
 import requests
 from lxml import etree as ET
 import pandas as pd
 import numpy as np
-import logging
-import logging.handlers
+
 
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
@@ -47,20 +48,16 @@ formatter = logging.Formatter('%(asctime)s ' + script_name + ' ver:' + str(VERSI
 handler = logging.handlers.RotatingFileHandler("powerprice.log", mode='a', maxBytes=8388608, backupCount=16)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.info(f"Starting ...")
+logger.info("Starting ...")
 
 def datetime_from_utc_to_local(utc):
-    """
-    Convert date and time from UTC to local time
-    """
+    """ Convert date and time from UTC to local time """
     epoch = time.mktime(time.strptime(utc, '%Y-%m-%dT%H:%MZ'))
     offset = datetime.fromtimestamp(epoch) - datetime.utcfromtimestamp(epoch)
     return (datetime.strptime(utc, '%Y-%m-%dT%H:%MZ') + offset).strftime('%Y-%m-%d %H:%M')
 
 def getEntsoePrice(area, apikey):
-    """
-    Get power price as xml from Entsoe using their api
-    """
+    """ Get power price as xml from Entsoe using their api """
     baseURL = "https://web-api.tp.entsoe.eu/api"
     docCode = "A44"
 
@@ -77,10 +74,9 @@ def getEntsoePrice(area, apikey):
     sys.exit(3)
 
 def parseXML(xml, lxslt):
-    """
-    Parse the Entsoe xml and extract price in Euro for each hour for today and tomorrow if it is available
-    Remove xml namespace using the xslt structure
-    """
+    """ Parse the Entsoe xml and extract price in Euro for each hour for today and tomorrow if it is available
+        Remove xml namespace using the xslt structure """
+    
     rlist = []
     tree = ET.parse(BytesIO(xml))
     transform=ET.XSLT(ET.parse(StringIO(lxslt)))
@@ -105,10 +101,9 @@ def parseXML(xml, lxslt):
     return rlist
 
 def valutaKursNB():
-    """
-    Get the exchange rate Euro to NOK from Norges Bank using their api
-    Use tlatest exchange rate available
-    """
+    """ Get the exchange rate Euro to NOK from Norges Bank using their api
+        Use tlatest exchange rate available """
+    
     url = "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-json&lastNObservations=1&locale=no"
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
@@ -117,9 +112,7 @@ def valutaKursNB():
     sys.exit(3)
 
 def getEntsoeArea(area):
-    """
-    Get the Entsoe area code from Norwegian area codes
-    """
+    """ Get the Entsoe area code from Norwegian area codes """
     entsoeArea = [["NO1", "10YNO-1--------2", "Oslo"],
                   ["NO2", "10YNO-2--------T", "Kristiansand"],
                   ["NO3", "10YNO-3--------J", "Trondheim"],
@@ -132,18 +125,14 @@ def getEntsoeArea(area):
     return "", ""
 
 def parseArgs(argv):
-    """
-    Get area code given as argument. Only car eabout the first argument
-    """
+    """ Get area code given as argument. Only care about the first argument """
     arg = ""
     if len(argv) >= 1:
         arg = argv[0].upper()
     return arg
 
 def getConfig():
-    """
-    Read the program ini file and get the Entsoe api key
-    """
+    """ Read the program ini file and get the Entsoe api key """
     home = os.path.expanduser("~")
     inifile = home + "/.entsoe.ini"
     config = configparser.ConfigParser()
@@ -152,8 +141,9 @@ def getConfig():
         return config['ENTSOE']['APIKEY']
     except KeyError:
         return ""
-    
+
 def fixPriceInfo(rlist):
+    """ Interpolate missing price data using pandas """
     newList = []
     td = timedelta(minutes=60)
     n = 1
@@ -178,7 +168,7 @@ def fixPriceInfo(rlist):
         n += 1
         if n1 == 24:
             n = 1
-    
+
     arr = []
     for i in range(len(newList)):
         arr.append(newList[i][3])
@@ -190,15 +180,14 @@ def fixPriceInfo(rlist):
     return newList
 
 def main(argv):
-    """
-    Get the api key, arguments used, Entsoe area code
-    Get the xml from Entsoe, parse the xmlto get price, get the exchange rate from NB and print the price
-    """
+    """ Get the api key, arguments used, Entsoe area code
+        Get the xml from Entsoe, parse the xmlto get price, get the exchange rate from NB and print the price """
+    
     area = "NO5"
 
     apikey = getConfig()
     if not apikey:
-        logger.error(f"Not able to find Entsoe api key. Exiting ....")
+        logger.error("Not able to find Entsoe api key. Exiting ....")
         sys.exit(1)
 
     arg = parseArgs(argv)
@@ -207,7 +196,7 @@ def main(argv):
 
     areacode, name = getEntsoeArea(area)
     if not areacode:
-        logger.error(f"Unknown areacode", area, "exiting ....")
+        logger.error(f"Unknown areacode {area} exiting ....")
         sys.exit(1)
 
     xmlResponse = getEntsoePrice(areacode, apikey)
@@ -217,7 +206,7 @@ def main(argv):
         logger.info(f"Using linear interpolation to calculate missing data")
         timeprice = fixPriceInfo(timeprice)
         logger.info(f"After interpolation {len(timeprice)} price points")
-    
+
     currency = valutaKursNB()
     prc = float(currency['data']['dataSets'][0]['series']['0:0:0:0']['observations']['0'][0])
 
@@ -226,8 +215,8 @@ def main(argv):
     for i in range(col):
         timeprice[i][3] = timeprice[i][3]*prc*1.25/1000
         print(timeprice[i][0], " - ", timeprice[i][1], " - ", f"{timeprice[i][2]:2d}", " - ", f"{timeprice[i][3]:7.4f}")
-    
-    logger.info(f"Finishing ...")
+
+    logger.info("Finishing ...")
 
 if __name__ == "__main__":
     main(sys.argv[1:])
