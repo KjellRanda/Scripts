@@ -15,7 +15,6 @@ from lxml import etree as ET
 import pandas as pd
 import numpy as np
 
-
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
 
@@ -76,7 +75,7 @@ def getEntsoePrice(area, apikey):
 def parseXML(xml, lxslt):
     """ Parse the Entsoe xml and extract price in Euro for each hour for today and tomorrow if it is available
         Remove xml namespace using the xslt structure """
-    
+
     rlist = []
     tree = ET.parse(BytesIO(xml))
     transform=ET.XSLT(ET.parse(StringIO(lxslt)))
@@ -91,10 +90,9 @@ def parseXML(xml, lxslt):
             period = j.find('position')
             price = j.find('price.amount')
             t1 = t0 + td*(int(period.text) - 1)
-            t2 = t1 + td
             a = []
             a.append(t1)
-            a.append(t2)
+            a.append(t1 + td)
             a.append(int(period.text))
             a.append(float(price.text))
             rlist.append(a)
@@ -103,7 +101,7 @@ def parseXML(xml, lxslt):
 def valutaKursNB():
     """ Get the exchange rate Euro to NOK from Norges Bank using their api
         Use tlatest exchange rate available """
-    
+
     url = "https://data.norges-bank.no/api/data/EXR/B.EUR.NOK.SP?format=sdmx-json&lastNObservations=1&locale=no"
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
@@ -182,7 +180,7 @@ def fixPriceInfo(rlist):
 def main(argv):
     """ Get the api key, arguments used, Entsoe area code
         Get the xml from Entsoe, parse the xmlto get price, get the exchange rate from NB and print the price """
-    
+
     area = "NO5"
 
     apikey = getConfig()
