@@ -69,7 +69,7 @@ def getEntsoePrice(area, apikey):
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.text.encode('UTF-8')
-    logger.error(f"Error getting data from Entsso-E. Reurn code = {response.status_code}")
+    logger.error("Error getting data from Entsso-E. Reurn code = %s", response.status_code)
     sys.exit(3)
 
 def parseXML(xml, lxslt):
@@ -201,7 +201,7 @@ def main(argv):
     timeprice = parseXML(xmlResponse, xslt)
     logger.info(f"Entsoe api reurned {len(timeprice)} price points")
     if len(timeprice) != 48 or len(timeprice) != 24:
-        logger.info(f"Using linear interpolation to calculate missing data")
+        logger.info("Using linear interpolation to calculate missing data")
         timeprice = fixPriceInfo(timeprice)
         logger.info(f"After interpolation {len(timeprice)} price points")
 
