@@ -12,6 +12,8 @@ import requests
 from lxml import etree as ET
 import pandas as pd
 import numpy as np
+import logging
+import logging.handlers
 
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
@@ -35,6 +37,17 @@ xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Tran
 </xsl:template>
 </xsl:stylesheet>
 '''
+
+VERSION = "1.1.000"
+
+script_name = os.path.basename(__file__).split('.')[0]
+logger = logging.getLogger('__name__')
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s ' + script_name + ' ver:' + str(VERSION) + ' %(levelname)s %(message)s')
+handler = logging.handlers.RotatingFileHandler("powerprice.log", mode='a', maxBytes=8388608, backupCount=16)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.info(f"Starting ...")
 
 def datetime_from_utc_to_local(utc):
     """
@@ -60,7 +73,7 @@ def getEntsoePrice(area, apikey):
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.text.encode('UTF-8')
-    print("Error getting data from Entsso-E. Reurn code = ", response.status_code)
+    logger.error(f"Error getting data from Entsso-E. Reurn code = {response.status_code}")
     sys.exit(3)
 
 def parseXML(xml, lxslt):
@@ -100,7 +113,7 @@ def valutaKursNB():
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.json()
-    print("Error getting data from Norges Bank code = ", response.status_code)
+    logger.error(f"Error getting data from Norges Bank code = {response.status_code}")
     sys.exit(3)
 
 def getEntsoeArea(area):
@@ -185,7 +198,7 @@ def main(argv):
 
     apikey = getConfig()
     if not apikey:
-        print("Not able to find Entsoe api key. Exiting ....")
+        logger.error(f"Not able to find Entsoe api key. Exiting ....")
         sys.exit(1)
 
     arg = parseArgs(argv)
@@ -194,13 +207,17 @@ def main(argv):
 
     areacode, name = getEntsoeArea(area)
     if not areacode:
-        print("Unknown areacode", area, "exiting ....")
+        logger.error(f"Unknown areacode", area, "exiting ....")
         sys.exit(1)
 
     xmlResponse = getEntsoePrice(areacode, apikey)
     timeprice = parseXML(xmlResponse, xslt)
+    logger.info(f"Entsoe api reurned {len(timeprice)} price points")
     if len(timeprice) != 48 or len(timeprice) != 24:
+        logger.info(f"Using linear interpolation to calculate missing data")
         timeprice = fixPriceInfo(timeprice)
+        logger.info(f"After interpolation {len(timeprice)} price points")
+    
     currency = valutaKursNB()
     prc = float(currency['data']['dataSets'][0]['series']['0:0:0:0']['observations']['0'][0])
 
@@ -209,6 +226,8 @@ def main(argv):
     for i in range(col):
         timeprice[i][3] = timeprice[i][3]*prc*1.25/1000
         print(timeprice[i][0], " - ", timeprice[i][1], " - ", f"{timeprice[i][2]:2d}", " - ", f"{timeprice[i][3]:7.4f}")
+    
+    logger.info(f"Finishing ...")
 
 if __name__ == "__main__":
     main(sys.argv[1:])
