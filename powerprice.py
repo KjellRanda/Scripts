@@ -69,7 +69,7 @@ def getEntsoePrice(area, apikey):
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.text.encode('UTF-8')
-    logger.error("Error getting data from Entsso-E. Reurn code = %s", response.status_code)
+    logger.error("Error getting data from Entsso-E. Reurn code = %i", response.status_code)
     sys.exit(3)
 
 def parseXML(xml, lxslt):
@@ -106,7 +106,7 @@ def valutaKursNB():
     response = requests.get(url, timeout=60)
     if response.status_code == 200:
         return response.json()
-    logger.error(f"Error getting data from Norges Bank code = {response.status_code}")
+    logger.error("Error getting data from Norges Bank code = %i", response.status_code)
     sys.exit(3)
 
 def getEntsoeArea(area):
@@ -194,16 +194,16 @@ def main(argv):
 
     areacode, name = getEntsoeArea(area)
     if not areacode:
-        logger.error(f"Unknown areacode {area} exiting ....")
+        logger.error("Unknown areacode %s exiting ....", area)
         sys.exit(1)
 
     xmlResponse = getEntsoePrice(areacode, apikey)
     timeprice = parseXML(xmlResponse, xslt)
-    logger.info(f"Entsoe api reurned {len(timeprice)} price points")
+    logger.info("Entsoe api reurned %i price points", len(timeprice))
     if len(timeprice) != 48 or len(timeprice) != 24:
         logger.info("Using linear interpolation to calculate missing data")
         timeprice = fixPriceInfo(timeprice)
-        logger.info(f"After interpolation {len(timeprice)} price points")
+        logger.info("After interpolation %i price points", len(timeprice))
 
     currency = valutaKursNB()
     prc = float(currency['data']['dataSets'][0]['series']['0:0:0:0']['observations']['0'][0])
