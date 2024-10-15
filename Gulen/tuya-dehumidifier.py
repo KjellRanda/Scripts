@@ -29,18 +29,20 @@ map = data[0]['mapping']
 num = [2, 6, 18, 19]
 
 client = InfluxDBClient(host='localhost', port='8086', database='hansensor')
-
 while True:
     d = tinytuya.Device(id, ip, key, version=ver)
     devdata = d.status()
-    message = '[{' +  '"measurement": "tuya", "tags": {"name": "avfukter", "ipaddr": "' + ip + '"}, "fields": {'
-    for item in devdata['dps']:
-        if int(item) in num:
-            message += '"' + str(map[item]['code']) + '": ' + str(devdata['dps'][item]) + ', '
-        else:
-            message += '"' + str(map[item]['code']) + '": "' + str(devdata['dps'][item]) + '", '
-    message = message[:-2]
-    message += '}}]'
-    logger.info(json.dumps(json.loads(message), indent=4))
-    client.write_points(json.loads(message))
+    if "Error" in devdata and devdata['Err'] == "901":
+        logger.error("Device at IP %s is offline", ip)
+    else:
+        message = '[{' +  '"measurement": "tuya", "tags": {"name": "avfukter", "ipaddr": "' + ip + '"}, "fields": {'
+        for item in devdata['dps']:
+            if int(item) in num:
+               message += '"' + str(map[item]['code']) + '": ' + str(devdata['dps'][item]) + ', '
+            else:
+               message += '"' + str(map[item]['code']) + '": "' + str(devdata['dps'][item]) + '", '
+        message = message[:-2]
+        message += '}}]'
+        logger.info(json.dumps(json.loads(message), indent=4))
+        client.write_points(json.loads(message))
     time.sleep(600)
