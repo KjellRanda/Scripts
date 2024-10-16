@@ -12,8 +12,6 @@ import logging.handlers
 import re
 import requests
 from lxml import etree as ET
-import pandas as pd
-import numpy as np
 
 xslt='''<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="xml" indent="no"/>
@@ -141,7 +139,7 @@ def getConfig():
         return ""
 
 def fixPriceInfo(rlist):
-    """ Interpolate missing price data using pandas """
+    """ Fill in missing price data """
     newList = []
     td = timedelta(minutes=60)
     n = 1
@@ -161,19 +159,11 @@ def fixPriceInfo(rlist):
             newItem.append(newList[-1][0] + td)
             newItem.append(newList[-1][1] + td)
             newItem.append(n)
-            newItem.append(np.nan)
+            newItem.append(newList[-1][3])
             newList.append(newItem)
         n += 1
         if n1 == 24:
             n = 1
-
-    arr = []
-    for i in range(len(newList)):
-        arr.append(newList[i][3])
-    arrpd = pd.Series(arr)
-    arrpd = arrpd.interpolate(method="linear")
-    for i in range(len(newList)):
-        newList[i][3] = float(arrpd.values[i])
 
     return newList
 
@@ -201,9 +191,9 @@ def main(argv):
     timeprice = parseXML(xmlResponse, xslt)
     logger.info("Entsoe api reurned %i price points", len(timeprice))
     if len(timeprice) != 48 or len(timeprice) != 24:
-        logger.info("Using linear interpolation to calculate missing data")
+        logger.info("Filling in missing data")
         timeprice = fixPriceInfo(timeprice)
-        logger.info("After interpolation %i price points", len(timeprice))
+        logger.info("After fill in %i price points", len(timeprice))
 
     currency = valutaKursNB()
     prc = float(currency['data']['dataSets'][0]['series']['0:0:0:0']['observations']['0'][0])
