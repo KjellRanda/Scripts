@@ -54,8 +54,8 @@ def getdevID(BASEURL, dheaders):
             if sys["securityLevel"] == "admin":
                 devid = dev[0]["id"]
                 name = sys["name"]
-            logger.info(f"Found device {devid} with name {name}")
-            return devid, name
+                logger.info(f"Found device with role admin {devid} with name {name}")
+                return devid, name
     logger.error(f"Failed to get devices: {response.status_code}")
     sys.exit(2)
 
