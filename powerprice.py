@@ -190,7 +190,7 @@ def main(argv):
     xmlResponse = getEntsoePrice(areacode, apikey)
     timeprice = parseXML(xmlResponse, xslt)
     logger.info("Entsoe api reurned %i price points", len(timeprice))
-    if len(timeprice) != 48 or len(timeprice) != 24:
+    if len(timeprice) != 48 and len(timeprice) != 24:
         logger.info("Filling in missing data")
         timeprice = fixPriceInfo(timeprice)
         logger.info("After fill in %i price points", len(timeprice))
