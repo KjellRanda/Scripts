@@ -1,9 +1,9 @@
 #! /bin/bash
 #
-PWR_HOME="/data/scripts"
+PWR_HOME="/data/python/prod"
 PWR_PRICE="/data/powerprice"
 PWR_TMP="/powerprice.new"
-PWR_TSORT="powerprice.soeted"
+PWR_TSORT="powerprice.sorted"
 PWR_OK="powerprice.list"
 #
 MV="/usr/bin/mv"
