@@ -93,7 +93,8 @@ def parseXML(xml, lxslt):
             a.append(t1 + td)
             a.append(int(period.text))
             a.append(float(price.text))
-            rlist.append(a)
+            if int(period.text) <= 24:
+                rlist.append(a)
     return rlist
 
 def valutaKursNB():
@@ -148,7 +149,6 @@ def fixPriceInfo(rlist):
     nlist =24
     if len(rlist) > 24:
         nlist = 48
-
     for i in range(nlist):
         n1 = rlist[j][2]
         if n1 == n:
@@ -189,7 +189,7 @@ def main(argv):
 
     xmlResponse = getEntsoePrice(areacode, apikey)
     timeprice = parseXML(xmlResponse, xslt)
-    logger.info("Entsoe api reurned %i price points", len(timeprice))
+    logger.info("Entsoe api returned %i price points", len(timeprice))
     if len(timeprice) != 48 and len(timeprice) != 24:
         logger.info("Filling in missing data")
         timeprice = fixPriceInfo(timeprice)
