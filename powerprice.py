@@ -173,6 +173,8 @@ def main(argv):
 
     area = "NO5"
 
+    vendorAddon = 0.0295
+
     apikey = getConfig()
     if not apikey:
         logger.error("Not able to find Entsoe api key. Exiting ....")
@@ -201,7 +203,7 @@ def main(argv):
     col = len(timeprice)
     print("======== Power price in NOK/kWh for area", area, "-", name, "========")
     for i in range(col):
-        timeprice[i][3] = timeprice[i][3]*prc*1.25/1000
+        timeprice[i][3] = timeprice[i][3]*prc*1.25/1000 + vendorAddon
         print(timeprice[i][0], " - ", timeprice[i][1], " - ", f"{timeprice[i][2]:2d}", " - ", f"{timeprice[i][3]:7.4f}")
 
     logger.info("Finishing ...")
