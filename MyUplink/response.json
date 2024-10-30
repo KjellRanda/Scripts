@@ -1,0 +1,1070 @@
+[
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "100",
+      "parameterName": "Expected ambient temperature",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 20,
+      "strVal": "20°C",
+      "smartHomeCategories": [],
+      "minValue": 1000,
+      "maxValue": 3500,
+      "stepValue": 100,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "101",
+      "parameterName": "Expected inlet water temperature",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 5,
+      "strVal": "5°C",
+      "smartHomeCategories": [],
+      "minValue": 400,
+      "maxValue": 2000,
+      "stepValue": 100,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "102",
+      "parameterName": "Default eco setpoint",
+      "parameterUnit": "°C",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 60,
+      "strVal": "60°C",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "200",
+      "parameterName": "Default boost setpoint",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 80,
+      "strVal": "80°C",
+      "smartHomeCategories": [],
+      "minValue": 6000,
+      "maxValue": 8500,
+      "stepValue": 100,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "201",
+      "parameterName": "Default boost duration",
+      "parameterUnit": "hour",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 2,
+      "strVal": "2hour",
+      "smartHomeCategories": [],
+      "minValue": 1,
+      "maxValue": 99,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "300",
+      "parameterName": "Default vacation setpoint",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 35,
+      "strVal": "35°C",
+      "smartHomeCategories": [],
+      "minValue": 3500,
+      "maxValue": 6500,
+      "stepValue": 100,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "301",
+      "parameterName": "Default vacation duration",
+      "parameterUnit": "day",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 31,
+      "strVal": "31day",
+      "smartHomeCategories": [],
+      "minValue": 4,
+      "maxValue": 35,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "302",
+      "parameterName": "Stored energy",
+      "parameterUnit": "kWh",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 6.79,
+      "strVal": "6.79kWh",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "0.001",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "303",
+      "parameterName": "Total energy used",
+      "parameterUnit": "kWh",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 1054.9,
+      "strVal": "1054.9kWh",
+      "smartHomeCategories": [
+        "sh-energyMetered"
+      ],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "0.001",
+      "zoneId": "1"
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "304",
+      "parameterName": "Time before display dim",
+      "parameterUnit": "min",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 3,
+      "strVal": "3min",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 60,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "305",
+      "parameterName": "Time before display is turned off",
+      "parameterUnit": "min",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 60,
+      "strVal": "60min",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 240,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "307",
+      "parameterName": "Power diff",
+      "parameterUnit": "%",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 4.5,
+      "strVal": "4.5%",
+      "smartHomeCategories": [],
+      "minValue": 1,
+      "maxValue": 150,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "0.1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "308",
+      "parameterName": "Timezone offset",
+      "parameterUnit": "min",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 120,
+      "strVal": "120min",
+      "smartHomeCategories": [],
+      "minValue": -720,
+      "maxValue": 720,
+      "stepValue": 30,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "400",
+      "parameterName": "Estimated power",
+      "parameterUnit": "W",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 0,
+      "strVal": "0W",
+      "smartHomeCategories": [
+        "sh-electricPowerUsedCurrently"
+      ],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": "1"
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "404",
+      "parameterName": "Fill level",
+      "parameterUnit": "%",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 100,
+      "strVal": "100%",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "406",
+      "parameterName": "Current program",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 10,
+      "strVal": "Vacation",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 11,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "0",
+          "text": "Test",
+          "icon": ""
+        },
+        {
+          "value": "1",
+          "text": "Off",
+          "icon": ""
+        },
+        {
+          "value": "2",
+          "text": "Sleep",
+          "icon": ""
+        },
+        {
+          "value": "3",
+          "text": "Eco",
+          "icon": ""
+        },
+        {
+          "value": "4",
+          "text": "Normal",
+          "icon": ""
+        },
+        {
+          "value": "5",
+          "text": "Express",
+          "icon": ""
+        },
+        {
+          "value": "6",
+          "text": "Price",
+          "icon": ""
+        },
+        {
+          "value": "7",
+          "text": "Schedule",
+          "icon": ""
+        },
+        {
+          "value": "8",
+          "text": "External",
+          "icon": ""
+        },
+        {
+          "value": "9",
+          "text": "Legionella",
+          "icon": ""
+        },
+        {
+          "value": "10",
+          "text": "Vacation",
+          "icon": ""
+        },
+        {
+          "value": "11",
+          "text": "Boost",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "500",
+      "parameterName": "Program",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 10,
+      "strVal": "Vacation",
+      "smartHomeCategories": [
+        "sh-hwMode"
+      ],
+      "minValue": 0,
+      "maxValue": 11,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "3",
+          "text": "Eco",
+          "icon": ""
+        },
+        {
+          "value": "4",
+          "text": "Normal",
+          "icon": ""
+        },
+        {
+          "value": "6",
+          "text": "Price",
+          "icon": ""
+        },
+        {
+          "value": "7",
+          "text": "Schedule",
+          "icon": ""
+        },
+        {
+          "value": "8",
+          "text": "External",
+          "icon": ""
+        },
+        {
+          "value": "10",
+          "text": "Vacation",
+          "icon": ""
+        },
+        {
+          "value": "11",
+          "text": "Boost",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": "1"
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "501",
+      "parameterName": "Current program timeout",
+      "parameterUnit": "h",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 612,
+      "strVal": "612h",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "503",
+      "parameterName": "Element 2 power",
+      "parameterUnit": "W",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 1300,
+      "strVal": "1300W",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "504",
+      "parameterName": "Element 1 power",
+      "parameterUnit": "W",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 700,
+      "strVal": "700W",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "505",
+      "parameterName": "Element 2 status",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 0,
+      "strVal": "Off",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "0",
+          "text": "Off",
+          "icon": ""
+        },
+        {
+          "value": "1",
+          "text": "On",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "506",
+      "parameterName": "Element 1 status",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 0,
+      "strVal": "Off",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "0",
+          "text": "Off",
+          "icon": ""
+        },
+        {
+          "value": "1",
+          "text": "On",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "507",
+      "parameterName": "Element 2 time on",
+      "parameterUnit": "h",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 443,
+      "strVal": "443h",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "508",
+      "parameterName": "Element 1 time on",
+      "parameterUnit": "h",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 753,
+      "strVal": "753h",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "509",
+      "parameterName": "Time since last legionella prevention",
+      "parameterUnit": "h",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 134,
+      "strVal": "134h",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "511",
+      "parameterName": "Time between legionella preventions",
+      "parameterUnit": "week",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 3,
+      "strVal": "3week",
+      "smartHomeCategories": [],
+      "minValue": 2,
+      "maxValue": 8,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "512",
+      "parameterName": "Max water flow",
+      "parameterUnit": "l/m",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 20,
+      "strVal": "20l/m",
+      "smartHomeCategories": [],
+      "minValue": 5,
+      "maxValue": 40,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "513",
+      "parameterName": "Model id",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": "18760NE2030223852643",
+      "strVal": "18760NE2030223852643",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "514",
+      "parameterName": "Next legionella prevention",
+      "parameterUnit": "h",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 602,
+      "strVal": "602h",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "516",
+      "parameterName": "Hysteresis",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 6,
+      "strVal": "6°C",
+      "smartHomeCategories": [],
+      "minValue": 300,
+      "maxValue": 1000,
+      "stepValue": 50,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "517",
+      "parameterName": "Power",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 3,
+      "strVal": "2000W",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "0",
+          "text": "Off",
+          "icon": ""
+        },
+        {
+          "value": "1",
+          "text": "700W",
+          "icon": ""
+        },
+        {
+          "value": "2",
+          "text": "1300W",
+          "icon": ""
+        },
+        {
+          "value": "3",
+          "text": "2000W",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "518",
+      "parameterName": "Serial number",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 23852643,
+      "strVal": "23852643",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "523",
+      "parameterName": "Support multiple power settings",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 1,
+      "strVal": "1",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "526",
+      "parameterName": "Tank volume",
+      "parameterUnit": "l",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 187,
+      "strVal": "187l",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "527",
+      "parameterName": "Setpoint",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 35,
+      "strVal": "35°C",
+      "smartHomeCategories": [
+        "sh-indoorSpHeat"
+      ],
+      "minValue": 2000,
+      "maxValue": 8500,
+      "stepValue": 100,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": "1"
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "528",
+      "parameterName": "Temperature",
+      "parameterUnit": "°C",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 36.2,
+      "strVal": "36.2°C",
+      "smartHomeCategories": [
+        "sh-indoorTemp"
+      ],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": "1"
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "531",
+      "parameterName": "Total runtime",
+      "parameterUnit": "h",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 11206,
+      "strVal": "11206h",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "532",
+      "parameterName": "Uptime",
+      "parameterUnit": "min",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 30294,
+      "strVal": "30294min",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "533",
+      "parameterName": "Uptime (com)",
+      "parameterUnit": "min",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 6341,
+      "strVal": "6341min",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "534",
+      "parameterName": "Uptime (connection)",
+      "parameterUnit": "min",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 1,
+      "strVal": "1min",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "544",
+      "parameterName": "Nordpool price region",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 5,
+      "strVal": "NO5",
+      "smartHomeCategories": [],
+      "minValue": 1,
+      "maxValue": 5,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "1",
+          "text": "NO1",
+          "icon": ""
+        },
+        {
+          "value": "2",
+          "text": "NO2",
+          "icon": ""
+        },
+        {
+          "value": "3",
+          "text": "NO3",
+          "icon": ""
+        },
+        {
+          "value": "4",
+          "text": "NO4",
+          "icon": ""
+        },
+        {
+          "value": "5",
+          "text": "NO5",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "545",
+      "parameterName": "Number of expensive hours",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 6,
+      "strVal": "6",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 18,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "546",
+      "parameterName": "Minimum remaining heat in expensive hours",
+      "parameterUnit": "%",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 50,
+      "strVal": "50%",
+      "smartHomeCategories": [],
+      "minValue": 20,
+      "maxValue": 100,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "547",
+      "parameterName": "Number of cheap hours",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 4,
+      "strVal": "4",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 12,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "548",
+      "parameterName": "Setpoint increase in cheap hours",
+      "parameterUnit": "°C",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 5,
+      "strVal": "5°C",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 2000,
+      "stepValue": 100,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "549",
+      "parameterName": "Current price type",
+      "parameterUnit": "",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 2,
+      "strVal": "Normal",
+      "smartHomeCategories": [],
+      "minValue": 0,
+      "maxValue": 3,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "0",
+          "text": "Unknown",
+          "icon": ""
+        },
+        {
+          "value": "1",
+          "text": "Cheap",
+          "icon": ""
+        },
+        {
+          "value": "2",
+          "text": "Normal",
+          "icon": ""
+        },
+        {
+          "value": "3",
+          "text": "Expensive",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "551",
+      "parameterName": "Current target temperature",
+      "parameterUnit": "°C",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 35,
+      "strVal": "35°C",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "0.01",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "553",
+      "parameterName": "WiFiRSSI",
+      "parameterUnit": "dBm",
+      "writable": false,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": -55,
+      "strVal": "-55dBm",
+      "smartHomeCategories": [],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [],
+      "scaleValue": "1",
+      "zoneId": null
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "600",
+      "parameterName": "Boost active",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 0,
+      "strVal": "Off",
+      "smartHomeCategories": [
+        "sh-hwBoost"
+      ],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "0",
+          "text": "Off",
+          "icon": ""
+        },
+        {
+          "value": "1",
+          "text": "On",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": "1"
+    },
+    {
+      "category": "18760NE2030223852643",
+      "parameterId": "601",
+      "parameterName": "Zone mode",
+      "parameterUnit": "",
+      "writable": true,
+      "timestamp": "2024-06-17T21:43:58+00:00",
+      "value": 1,
+      "strVal": "heat",
+      "smartHomeCategories": [
+        "sh-zoneMode"
+      ],
+      "minValue": null,
+      "maxValue": null,
+      "stepValue": 1,
+      "enumValues": [
+        {
+          "value": "1",
+          "text": "heat",
+          "icon": ""
+        }
+      ],
+      "scaleValue": "1",
+      "zoneId": "1"
+    }
+  ]
