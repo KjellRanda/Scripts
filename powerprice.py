@@ -155,6 +155,8 @@ def fixPriceInfo(rlist):
             newList.append(rlist[j])
             j += 1
         else:
+            if n == 24:
+                n1 = 24
             newItem = []
             newItem.append(newList[-1][0] + td)
             newItem.append(newList[-1][1] + td)
