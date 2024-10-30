@@ -1,78 +1,23 @@
 import json
-import sys
 import os
 from datetime import datetime
 import configparser
 import logging
 import logging.handlers
-import requests
 import holidays
 
-VERSION = "0.0.002"
+from MyUplinkApi import myuplinkapi
+
+VERSION = "0.1.00"
 
 script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s ' + script_name + ' ver:' + str(VERSION) + ' %(levelname)s %(message)s')
-handler = logging.handlers.RotatingFileHandler("MyUplinkScheduler.log", mode='a', maxBytes=8388608, backupCount=16)
+handler = logging.handlers.RotatingFileHandler(script_name + ".log", mode='a', maxBytes=8388608, backupCount=16)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.info("Starting ...")
-
-def authorize(BASEURL, USERNAME, PASSWORD):
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    payload = {
-        "client_id": "My-Uplink-Web",
-        "grant_type": "password",
-        "username": USERNAME,
-        "password": PASSWORD
-    }
-    url = BASEURL + "/oauth/token"
-    response = requests.post(url, headers=headers, data=payload, timeout=60)
-    if response.status_code == 200:
-        tResponse = response.json()
-        lifetime = tResponse["expires_in"]
-        token = tResponse["access_token"]
-        logger.info(f"Got token with lifetime {lifetime}s")
-        return token, lifetime
-    logger.error(f"Failed to get a token: {response.status_code}")
-    sys.exit(1)
-
-
-def getdevID(baseurl):
-    url = baseurl + "/v2/groups/me"
-    dheaders = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": "Bearer " + token
-    }
-    response = requests.get(url, headers=dheaders, timeout=60)
-    if response.status_code == 200:
-        sysList = response.json()
-        for item in sysList["groups"]:
-            if item["role"] == "admin":
-                devid = item["devices"][0]["id"]
-                name = item["name"]
-            logger.info(f"Found device {devid} with name {name}")
-            return devid
-    logger.error(f"Failed to get devices: {response.status_code}")
-    sys.exit(2)
-
-def updateSchedule(BASEURL, devid, json_data):
-    url = BASEURL + "/v2/devices/" + devid + "/weekly-schedules"
-    dheaders = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-    }
-    response = requests.put(url, headers=dheaders, data=json_data, timeout=60)
-    if response.status_code == 200 or response.status_code == 204:
-        logger.info(f"Schedule sucessfully updated: {response.status_code}")
-        return
-    logger.error(f"Failed to update schedule: {response.status_code}")
-    sys.exit(3)
 
 def dailyPriceList(lines):
     pricel = {}
@@ -193,7 +138,6 @@ def getConfig(kind):
     except KeyError:
         return ""
 
-BASEURL = "https://internalapi.myuplink.com"
 
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 jstring = '[{"weeklyScheduleId": 0,"weekFormat": "mon,tue,wed,thu,fri,sat,sun","events": ['
@@ -204,9 +148,14 @@ MediumPowerHours = int(getConfig("MEDIUMH"))
 priceFile = getConfig("PRICE")
 nFile = getConfig("GRIDFEE")
 
-token, tleft = authorize(BASEURL,USERNAME, PASSWORD)
+upl = myuplinkapi()
+upl.apiUserPasswd(USERNAME, PASSWORD)
+upl.setIntAPI()
+upl.setLogger(logger)
 
-devid = getdevID(BASEURL)
+tleft = upl.authorize()
+
+devid = upl.getDevID()
 
 f = open(priceFile)
 logger.info(f"Reading powerprice from {priceFile}")
@@ -260,4 +209,4 @@ for day in weekdays:
 jstring = jstring[:-1]
 jstring += ']}]'
 json_data = json.dumps(json.loads(jstring))
-updateSchedule(BASEURL, devid, json_data)
+upl.updateSchedule(json_data)

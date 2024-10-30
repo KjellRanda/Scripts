@@ -1,80 +1,23 @@
-import json
 import time
-import sys
 import os
 import configparser
 import random
 import logging
 import logging.handlers
-import requests
 import paho.mqtt.client as mqtt
 
-VERSION = "0.0.002"
+from MyUplinkApi import myuplinkapi
+
+VERSION = "0.1.00"
 
 script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s ' + script_name + ' ver:' + str(VERSION) + ' %(levelname)s %(message)s')
-handler = logging.handlers.RotatingFileHandler("MyUplinkServer.log", mode='a', maxBytes=8388608, backupCount=16)
+handler = logging.handlers.RotatingFileHandler(script_name + ".log", mode='a', maxBytes=8388608, backupCount=16)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.info("Starting ...")
-
-def authorize(BASEURL, USERNAME, PASSWORD):
-    authurl = BASEURL + "/oauth/token"
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    payload = {
-        "client_id": "My-Uplink-Web",
-        "grant_type": "password",
-        "username": USERNAME,
-        "password": PASSWORD
-    }
-    response = requests.post(authurl, headers=headers, data=payload, timeout=60)
-    if response.status_code == 200:
-        tResponse = response.json()
-        lifetime = tResponse["expires_in"]
-        token = tResponse["access_token"]
-        logger.info(f"Got token with lifetime {lifetime}s")
-        return token, lifetime
-    logger.error(f"Failed to get a token: {response.status_code}")
-    sys.exit(1)
-
-def getdevID(BASEURL, dheaders):
-    url = BASEURL + "/v2/systems/me"
-    response = requests.get(url, headers=dheaders, timeout=60)
-    if response.status_code == 200:
-        sysList = response.json()
-        ndev = sysList["numItems"]
-        for i in range(ndev):
-            sys = sysList["systems"][i]
-            dev = sys["devices"]
-            if sys["securityLevel"] == "admin":
-                devid = dev[0]["id"]
-                name = sys["name"]
-                logger.info(f"Found device with role admin {devid} with name {name}")
-                return devid, name
-    logger.error(f"Failed to get devices: {response.status_code}")
-    sys.exit(2)
-
-def getdevData(BASEURL, dheaders, params):
-    mqttData = []
-    url = BASEURL + "/v2/devices/" + devid + "/points?parameters=" + params
-    response = requests.get(url, headers=dheaders, timeout=60)
-    if response.status_code == 200:
-        dlist = response.json()
-        for item in dlist:
-            if item["parameterId"] == '406':
-                unit = item["strVal"]
-            else:
-                unit = item["parameterUnit"]
-            mqttData.append([item["parameterId"], item["parameterName"], item["value"], unit])
-            logger.debug(f'{item["parameterId"]} {item["parameterName"]} {item["value"]} {unit}')
-        return mqttData
-    logger.error(f"Failed to get device data: {response.status_code}")
-    sys.exit(3)
 
 def getConfig(kind):
     home = os.path.expanduser("~")
@@ -126,7 +69,6 @@ def capUnspace(s):
     return ''.join( (c.upper() if i == 0 or s[i-1] == ' ' else c) for i, c in enumerate(s) ).replace(" ", "")
 
 
-BASEURL = "https://api.myuplink.com"
 SLEEPTIME = 300
 TOPIC = getConfig("TOPIC")
 DATAL = getConfig("DATA")
@@ -140,6 +82,10 @@ mqttUSER, mqttPASS = getConfig("MQTT")
 mqttHOST, mqttPORT = getConfig("MQTTINFO")
 sleep = int(getConfig('SLEEP'))
 
+upl = myuplinkapi()
+upl.apiUserPasswd(USERNAME, PASSWORD)
+upl.setLogger(logger)
+
 client = mqtt.Client(f'python-mqtt-{random.randint(0, 1000)}')
 client.on_connect = on_connect
 client.on_disconnect = on_disconnect
@@ -149,17 +95,13 @@ client.loop_start()
 
 while True:
     if tleft < 2*SLEEPTIME:
-        token, tleft = authorize(BASEURL, USERNAME, PASSWORD)
-        dheaders = {
-            "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": "Bearer " + token
-        }
+        tleft = upl.authorize()
 
     if devid == "":
-        devid, name = getdevID(BASEURL, dheaders)
+        devid =  upl.getDevID()
+        name = upl.getDevName()
 
-    mqttData = getdevData(BASEURL, dheaders, DATAL)
+    mqttData = upl.getdevData(DATAL)
 
     updateMQTT(client, TOPIC, name, mqttData)
 
