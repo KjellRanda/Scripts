@@ -1,14 +1,14 @@
 import json
 import os
 from datetime import datetime
-import configparser
 import logging
 import logging.handlers
 import holidays
 
 from MyUplinkApi import myuplinkapi
+from MyUplinkUtil import MyUptimeConfig
 
-VERSION = "0.1.00"
+VERSION = "0.1.10"
 
 script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
@@ -109,44 +109,18 @@ def getGridFee(price, date):
                     prc[i] = price[2]
     return prc
 
-def getConfig(kind):
-    home = os.path.expanduser("~")
-    inifile = home + "/.MyUplink.ini"
-    config = configparser.ConfigParser()
-    config.read(inifile)
-    try:
-        if kind == "MYUPLINK":
-            return config['MYUPLINK']['USERNAME'], config['MYUPLINK']['PASSWORD']
-        if kind == "MQTT":
-            return config['MQTT']['USERNAME'], config['MQTT']['PASSWORD']
-        if kind == "MQTTINFO":
-            return config['MQTT']['SERVER'], config['MQTT']['PORT']
-        if kind == "TOPIC":
-            return config['MQTT']['TOPICBASE']
-        if kind == "DATA":
-            return config['MQTT']['DATALIST']
-        if kind == "SLEEP":
-            return config['MQTT']['SLEEPTIME']
-        if kind == "CHEAPH":
-            return config['SCHEDULE']['CHEAPHOURS']
-        if kind == "MEDIUMH":
-            return config['SCHEDULE']['MEDIUMHOURS']
-        if kind == "PRICE":
-            return config['SCHEDULE']['PRICEFILE']
-        if kind == "GRIDFEE":
-            return config['SCHEDULE']['GRIDFEE']
-    except KeyError:
-        return ""
-
 
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 jstring = '[{"weeklyScheduleId": 0,"weekFormat": "mon,tue,wed,thu,fri,sat,sun","events": ['
 
-USERNAME, PASSWORD = getConfig("MYUPLINK")
-MaxPowerHours = int(getConfig("CHEAPH"))
-MediumPowerHours = int(getConfig("MEDIUMH"))
-priceFile = getConfig("PRICE")
-nFile = getConfig("GRIDFEE")
+iniConf = MyUptimeConfig(".MyUplink.ini")
+
+USERNAME = iniConf.getKey('MYUPLINK', 'USERNAME')
+PASSWORD = iniConf.getKey('MYUPLINK', 'PASSWORD')
+MaxPowerHours = int(iniConf.getKey('SCHEDULE', 'CHEAPHOURS'))
+MediumPowerHours = int(iniConf.getKey('SCHEDULE', 'MEDIUMHOURS'))
+priceFile = iniConf.getKey('SCHEDULE', 'PRICEFILE')
+nFile = iniConf.getKey('SCHEDULE', 'GRIDFEE')
 
 upl = myuplinkapi()
 upl.apiUserPasswd(USERNAME, PASSWORD)

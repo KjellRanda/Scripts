@@ -1,12 +1,12 @@
 import time
 import os
-import configparser
 import random
 import logging
 import logging.handlers
 import paho.mqtt.client as mqtt
 
 from MyUplinkApi import myuplinkapi
+from MyUplinkUtil import MyUptimeConfig
 
 VERSION = "0.1.00"
 
@@ -18,27 +18,6 @@ handler = logging.handlers.RotatingFileHandler(script_name + ".log", mode='a', m
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.info("Starting ...")
-
-def getConfig(kind):
-    home = os.path.expanduser("~")
-    inifile = home + "/.MyUplink.ini"
-    config = configparser.ConfigParser()
-    config.read(inifile)
-    try:
-        if kind == "MYUPLINK":
-            return config['MYUPLINK']['USERNAME'], config['MYUPLINK']['PASSWORD']
-        if kind == "MQTT":
-            return config['MQTT']['USERNAME'], config['MQTT']['PASSWORD']
-        if kind == "MQTTINFO":
-            return config['MQTT']['SERVER'], config['MQTT']['PORT']
-        if kind == "TOPIC":
-            return config['MQTT']['TOPICBASE']
-        if kind == "DATA":
-            return config['MQTT']['DATALIST']
-        if kind == "SLEEP":
-            return config['MQTT']['SLEEPTIME']
-    except KeyError:
-        return ""
 
 def on_connect(m_client, userdata, flags, rc):
     if rc == 0:
@@ -69,18 +48,23 @@ def capUnspace(s):
     return ''.join( (c.upper() if i == 0 or s[i-1] == ' ' else c) for i, c in enumerate(s) ).replace(" ", "")
 
 
+iniConf = MyUptimeConfig(".MyUplink.ini")
+
 SLEEPTIME = 300
-TOPIC = getConfig("TOPIC")
-DATAL = getConfig("DATA")
+TOPIC = iniConf.getKey('MQTT', 'TOPICBASE')
+DATAL = iniConf.getKey('MQTT', 'DATALIST')
 
 devid = ""
 tleft = 0
 sleep = SLEEPTIME
 
-USERNAME, PASSWORD = getConfig("MYUPLINK")
-mqttUSER, mqttPASS = getConfig("MQTT")
-mqttHOST, mqttPORT = getConfig("MQTTINFO")
-sleep = int(getConfig('SLEEP'))
+USERNAME = iniConf.getKey('MYUPLINK', 'USERNAME')
+PASSWORD = iniConf.getKey('MYUPLINK', 'PASSWORD')
+mqttUSER = iniConf.getKey('MQTT', 'USERNAME')
+mqttPASS = iniConf.getKey('MQTT', 'PASSWORD')
+mqttHOST = iniConf.getKey('MQTT', 'SERVER')
+mqttPORT = iniConf.getKey('MQTT', 'PORT')
+sleep = int(iniConf.getKey('MQTT', 'SLEEPTIME'))
 
 upl = myuplinkapi()
 upl.apiUserPasswd(USERNAME, PASSWORD)
