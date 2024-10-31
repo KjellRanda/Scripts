@@ -150,7 +150,8 @@ def fixPriceInfo(rlist):
     if len(rlist) > 24:
         nlist = 48
     for i in range(nlist):
-        n1 = rlist[j][2]
+        if j < len(rlist):
+            n1 = rlist[j][2]
         if n1 == n:
             newList.append(rlist[j])
             j += 1
