@@ -11,6 +11,8 @@ class myuplinkapi:
         self.passwd  = None
         self.token = None
         self.lifetime = None
+        self.payload = None
+        self.headers = None
         self.devid = None
         self.devname = None
         self.logger = None
@@ -20,14 +22,14 @@ class myuplinkapi:
 
     def getDevName(self):
         return self.devname
-    
+
     def setLogger(self, logger):
         self.logger = logger
     
     def setIntAPI(self) -> None:
         self.apiver  = INT_API
         self.baseurl = INT_BASEURL
-        
+
     def apiUserPasswd(self, USERNAME, PASSWORD) -> None:
         self.usrname = USERNAME
         self.passwd  = PASSWORD
@@ -132,29 +134,24 @@ class myuplinkapi:
 
     def getSchedule(self):
         url = self.baseurl + "/v2/devices/" + self.devid + "/weekly-schedules"
-        self.headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + self.token
-        }
-        response = requests.get(url, headers=self.headers, timeout=60)
-        if response.status_code == 200:
-            return response.json()
-        message = f"Failed to get schedule: {response.status_code}"
-        self._output_(self.ERROR, message)
-        sys.exit(5)
+        return self._getScheduleData(url, "data")
 
     def getScheduleMode(self):
         url = self.baseurl + "/v2/devices/" + self.devid + "/schedule-modes"
+        return self._getScheduleData(url, "mode")
+
+    def _getScheduleData(self, apiurl, mess):
         self.headers = {
             "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "Bearer " + self.token
         }
-        response = requests.get(url, headers=self.headers, timeout=60)
+        response = requests.get(apiurl, headers=self.headers, timeout=60)
         if response.status_code == 200:
             return response.json()
-        message = f"Failed to get schedule modes: {response.status_code}"
+        message = f"Failed to get schedule {mess}: {response.status_code}"
         self._output_(self.ERROR, message)
-        sys.exit(6)
+        sys.exit(5)        
 
     def _output_(self, severity, mess):
         mylogger = self.logger
