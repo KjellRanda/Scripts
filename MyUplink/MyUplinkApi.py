@@ -130,6 +130,32 @@ class myuplinkapi:
         self._output_(self.ERROR, message)
         sys.exit(4)
 
+    def getSchedule(self):
+        url = self.baseurl + "/v2/devices/" + self.devid + "/weekly-schedules"
+        self.headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.token
+        }
+        response = requests.get(url, headers=self.headers, timeout=60)
+        if response.status_code == 200:
+            return response.json()
+        message = f"Failed to get schedule: {response.status_code}"
+        self._output_(self.ERROR, message)
+        sys.exit(5)
+
+    def getScheduleMode(self):
+        url = self.baseurl + "/v2/devices/" + self.devid + "/schedule-modes"
+        self.headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.token
+        }
+        response = requests.get(url, headers=self.headers, timeout=60)
+        if response.status_code == 200:
+            return response.json()
+        message = f"Failed to get schedule modes: {response.status_code}"
+        self._output_(self.ERROR, message)
+        sys.exit(6)
+
     def _output_(self, severity, mess):
         mylogger = self.logger
         if mylogger:
