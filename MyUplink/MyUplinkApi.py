@@ -1,6 +1,6 @@
 import sys
 import requests
-from MyUplinkConst import PUB_API, INT_API, PUB_BASEURL, INT_BASEURL 
+from MyUplinkConst import PUB_API, INT_API, PUB_BASEURL, INT_BASEURL
 
 class myuplinkapi:
 
@@ -25,7 +25,7 @@ class myuplinkapi:
 
     def setLogger(self, logger):
         self.logger = logger
-    
+
     def setIntAPI(self) -> None:
         self.apiver  = INT_API
         self.baseurl = INT_BASEURL
@@ -124,7 +124,7 @@ class myuplinkapi:
             "Authorization": "Bearer " + self.token
         }
         response = requests.put(url, headers=self.headers, data=json_data, timeout=60)
-        if response.status_code == 200 or response.status_code == 204:
+        if response.status_code in (200, 204):
             message = f"Schedule sucessfully updated: {response.status_code}"
             self._output_(self.INFO, message)
             return
@@ -142,7 +142,7 @@ class myuplinkapi:
 
     def _getScheduleData(self, apiurl, mess):
         self.headers = {
-            "Content-Type": "application/json",
+            "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "Bearer " + self.token
         }
@@ -151,7 +151,7 @@ class myuplinkapi:
             return response.json()
         message = f"Failed to get schedule {mess}: {response.status_code}"
         self._output_(self.ERROR, message)
-        sys.exit(5)        
+        sys.exit(5)
 
     def _output_(self, severity, mess):
         mylogger = self.logger
