@@ -15,3 +15,6 @@ MODE_M6 = 55
 
 DEF_MAX_POWER_HOURS    = 5
 DEF_MEDIUM_POWER_HOURS = 8
+
+FILE_SCHEDULE = "Schedule.json"
+FILE_SCHEDULE_MODE = "ScheduleMode.json" 
