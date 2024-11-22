@@ -7,8 +7,9 @@ import holidays
 
 from MyUplinkApi import myuplinkapi
 from MyUplinkUtil import MyUptimeConfig
+from MyUplinkConst import MODE_M4, MODE_M5, MODE_M6, POWER_PRICE_HIGH, POWER_PRICE_MEDIUM, POWER_PRICE_LOW
 
-VERSION = "0.1.10"
+VERSION = "0.1.20"
 
 script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
@@ -33,11 +34,11 @@ def updatePriceList(pricel, pricesd, MaxPowerHours, MediumPowerHours):
     n = 0
     for line in pricesd.items():
         if n < MaxPowerHours:
-            s = 'Cheap'
+            s = POWER_PRICE_LOW
         elif n < MaxPowerHours + MediumPowerHours:
-            s = 'Medium'
+            s = POWER_PRICE_MEDIUM
         else:
-            s = 'Expensive'
+            s = POWER_PRICE_HIGH
         pricel[line[0]]['state'] = s
         n = n + 1
     return pricel
@@ -47,12 +48,12 @@ def buildJsonPrice(pricel):
     usedMode = 0
     for line in pricel.items():
         s = line[1]['state']
-        if s == 'Expensive':
-            mode = 53
-        if s == 'Medium':
-            mode = 54
-        if s == 'Cheap':
-            mode = 55
+        if s == POWER_PRICE_HIGH:
+            mode = MODE_M4
+        if s == POWER_PRICE_MEDIUM:
+            mode = MODE_M5
+        if s == POWER_PRICE_LOW:
+            mode = MODE_M6
 
         if usedMode != mode:
             pjson += '{"enabled": true,'
@@ -176,9 +177,9 @@ for day in weekdays:
     elif day == wday2:
         jstring += pstring2
     else:
-        jstring += '{"enabled": true,"modeId": 55,"startDay": "' + day + '","startTime": "00:00:00","stopDay": null,"stopTime": null},'
-        jstring += '{"enabled": true,"modeId": 53,"startDay": "' + day + '","startTime": "06:00:00","stopDay": null,"stopTime": null},'
-        jstring += '{"enabled": true,"modeId": 54,"startDay": "' + day + '","startTime": "12:00:00","stopDay": null,"stopTime": null},'
+        jstring += '{"enabled": true,"modeId": ' + str(MODE_M6) + ',"startDay": "' + day + '","startTime": "00:00:00","stopDay": null,"stopTime": null},'
+        jstring += '{"enabled": true,"modeId": ' + str(MODE_M4) + ',"startDay": "' + day + '","startTime": "06:00:00","stopDay": null,"stopTime": null},'
+        jstring += '{"enabled": true,"modeId": ' + str(MODE_M5) + ',"startDay": "' + day + '","startTime": "12:00:00","stopDay": null,"stopTime": null},'
 
 jstring = jstring[:-1]
 jstring += ']}]'
