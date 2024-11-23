@@ -8,8 +8,10 @@ import holidays
 from MyUplinkApi import myuplinkapi
 from MyUplinkUtil import MyUptimeConfig
 from MyUplinkConst import MODE_M4, MODE_M5, MODE_M6, POWER_PRICE_HIGH, POWER_PRICE_MEDIUM, POWER_PRICE_LOW
+from MyUplinkConst import DEF_MAX_POWER_HOURS, DEF_MEDIUM_POWER_HOURS
+from MyUplinkConst import FILE_SCHEDULE, FILE_SCHEDULE_MODE
 
-VERSION = "0.1.20"
+VERSION = "0.1.30"
 
 script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
@@ -114,14 +116,29 @@ def getGridFee(price, date):
 weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 jstring = '[{"weeklyScheduleId": 0,"weekFormat": "mon,tue,wed,thu,fri,sat,sun","events": ['
 
+MaxPowerHours = DEF_MAX_POWER_HOURS
+MediumPowerHours = DEF_MEDIUM_POWER_HOURS
+
+scheduleFile = FILE_SCHEDULE
+scheduleFileMode = FILE_SCHEDULE_MODE
+
 iniConf = MyUptimeConfig(".MyUplink.ini")
 
 USERNAME = iniConf.getKey('MYUPLINK', 'USERNAME')
 PASSWORD = iniConf.getKey('MYUPLINK', 'PASSWORD')
-MaxPowerHours = int(iniConf.getKey('SCHEDULE', 'CHEAPHOURS'))
-MediumPowerHours = int(iniConf.getKey('SCHEDULE', 'MEDIUMHOURS'))
+
+if int(iniConf.getKey('SCHEDULE', 'CHEAPHOURS')):
+    MaxPowerHours = int(iniConf.getKey('SCHEDULE', 'CHEAPHOURS'))
+if int(iniConf.getKey('SCHEDULE', 'MEDIUMHOURS')):
+    MediumPowerHours = int(iniConf.getKey('SCHEDULE', 'MEDIUMHOURS'))
+
 priceFile = iniConf.getKey('SCHEDULE', 'PRICEFILE')
 nFile = iniConf.getKey('SCHEDULE', 'GRIDFEE')
+
+if iniConf.getKey('SCHEDULE', 'SCHEDULEFILE'):
+    scheduleFile = iniConf.getKey('SCHEDULE', 'SCHEDULEFILE')
+if iniConf.getKey('SCHEDULE', 'SCHEDULEFILEMODE'):
+    scheduleFileMode = iniConf.getKey('SCHEDULE', 'SCHEDULEFILEMODE')
 
 upl = myuplinkapi()
 upl.apiUserPasswd(USERNAME, PASSWORD)
