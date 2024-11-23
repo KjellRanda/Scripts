@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+import time
 import logging
 import logging.handlers
 import holidays
@@ -11,7 +12,7 @@ from MyUplinkConst import MODE_M4, MODE_M5, MODE_M6, POWER_PRICE_HIGH, POWER_PRI
 from MyUplinkConst import DEF_MAX_POWER_HOURS, DEF_MEDIUM_POWER_HOURS
 from MyUplinkConst import FILE_SCHEDULE, FILE_SCHEDULE_MODE
 
-VERSION = "0.1.30"
+VERSION = "0.1.40"
 
 script_name = os.path.basename(__file__).split('.')[0]
 logger = logging.getLogger('__name__')
@@ -65,9 +66,9 @@ def buildJsonPrice(pricel):
     return pjson
 
 def readGridFee(nFile):
-    f = open(nFile)
-    allLines = f.readlines()[2: ]
-    f.close()
+    with open(nFile, 'r') as f:
+        allLines = f.readlines()[2: ]
+        f.close()
 
     price = [None]*4
     n = 0
@@ -149,10 +150,10 @@ tleft = upl.authorize()
 
 devid = upl.getDevID()
 
-f = open(priceFile)
-logger.info(f"Reading powerprice from {priceFile}")
-allLines = f.readlines()[1: ]
-f.close()
+with open(priceFile, 'r') as f:
+    logger.info(f"Reading powerprice from {priceFile}")
+    allLines = f.readlines()[1: ]
+    f.close()
 
 price = readGridFee(nFile)
 logger.info(f"Reading gridfee from {nFile}")
@@ -186,7 +187,7 @@ for i in range(2):
         pstring2 = pjson
 
     for j in pricel.items():
-        logger.debug(f"{j}")
+        logger.debug("%s", j)
 
 for day in weekdays:
     if day == wday1:
@@ -202,3 +203,17 @@ jstring = jstring[:-1]
 jstring += ']}]'
 json_data = json.dumps(json.loads(jstring))
 upl.updateSchedule(json_data)
+
+time.sleep(10)
+
+jsonData = upl.getSchedule()
+with open(scheduleFile, 'w', encoding='utf-8') as f:
+    json.dump(jsonData, f, ensure_ascii=False, indent=4)
+    f.close()
+    logger.info("Schedule data file %s created", scheduleFile)
+
+jsonData = upl.getScheduleMode()
+with open(scheduleFileMode, 'w', encoding='utf-8') as f:
+    json.dump(jsonData, f, ensure_ascii=False, indent=4)
+    f.close()
+    logger.info("Schedule mode file %s created", scheduleFileMode)
