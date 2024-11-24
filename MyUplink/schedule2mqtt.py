@@ -9,7 +9,7 @@ from MyUplinkConst import FILE_SCHEDULE, FILE_SCHEDULE_MODE
 
 def readSchedule(sFile):
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    with open(sFile, 'r') as f:
+    with open(sFile, 'r', encoding='utf8') as f:
         data = json.load(f)
         f.close()
         nEvents = len(data[0]['events'])
@@ -22,15 +22,39 @@ def readSchedule(sFile):
                 if dHour <= hNow:
                     fMode = data[0]['events'][i]['modeId']
                     return fMode
+    return None
 
 def readScheduleMode(smFile, fMode):
-    with open(smFile, 'r') as f:
+    with open(smFile, 'r', encoding='utf8') as f:
         data = json.load(f)
         f.close()
         for i in range(len(data)):
             if data[i]['modeId'] == fMode:
                 fName =  data[i]['name']
                 return fName
+    return None
+
+def updateMQTT(iniConf, logger, fName):
+    mqttUSER = iniConf.getKey('MQTT', 'USERNAME')
+    mqttPASS = iniConf.getKey('MQTT', 'PASSWORD')
+    mqttHOST = iniConf.getKey('MQTT', 'SERVER')
+    mqttPORT = iniConf.getKey('MQTT', 'PORT')
+    TOPIC = iniConf.getKey('MQTT', 'TOPICBASE')
+
+    client = mqtt.Client(f'python-mqtt-{random.randint(0, 1000)}')
+
+    client.username_pw_set(mqttUSER, mqttPASS)
+    client.connect(mqttHOST, int(mqttPORT), 600)
+
+    client.loop_start()
+    mTopic = TOPIC + "/VVB/scheduleMode"
+    result = client.publish(TOPIC, fName, 0, True)
+    if result[0] == 0:
+        logger.debug("Sendt %s to topic %s", fName, mTopic)
+    else:
+        logger.error("Failed to send message to topic %s Error code %i", mTopic, result[0])
+    client.loop_stop()
+    return
 
 def main():
     VERSION = "0.1.00"
@@ -48,28 +72,10 @@ def main():
     if iniConf.getKey('SCHEDULE', 'SCHEDULEFILEMODE'):
         scheduleFileMode = iniConf.getKey('SCHEDULE', 'SCHEDULEFILEMODE')
 
-    mqttUSER = iniConf.getKey('MQTT', 'USERNAME')
-    mqttPASS = iniConf.getKey('MQTT', 'PASSWORD')
-    mqttHOST = iniConf.getKey('MQTT', 'SERVER')
-    mqttPORT = iniConf.getKey('MQTT', 'PORT')
-    TOPIC = iniConf.getKey('MQTT', 'TOPICBASE')
-
     fMode = readSchedule(scheduleFile)
     fName = readScheduleMode(scheduleFileMode, fMode)
 
-    client = mqtt.Client(f'python-mqtt-{random.randint(0, 1000)}')
-
-    client.username_pw_set(mqttUSER, mqttPASS)
-    client.connect(mqttHOST, int(mqttPORT), 600)
-    
-    client.loop_start()
-    mTopic = TOPIC + "/VVB/scheduleMode"
-    result = client.publish(mTopic, fName, 0, True)
-    if result[0] == 0:
-        logger.debug("Sendt %s to topic %s", fName, mTopic)
-    else:
-        logger.error("Failed to send message to topic %s Error code %i", mTopic, result[0])
-    client.loop_stop()
+    updateMQTT(iniConf, logger, fName)
 
     logger.info("Finishing ...")
 
