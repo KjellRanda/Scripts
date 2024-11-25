@@ -16,7 +16,7 @@ def readSchedule(sFile):
         tNow = datetime.now()
         toDay = weekdays[tNow.weekday()]
         hNow = tNow.hour
-        for i in range(nEvents-1, 0,- 1):
+        for i in range(nEvents-1, -1,- 1):
             if data[0]['events'][i]['startDay'] == toDay:
                 dHour = int(data[0]['events'][i]['startTime'].split(':')[0])
                 if dHour <= hNow:
@@ -48,7 +48,7 @@ def updateMQTT(iniConf, logger, fName):
 
     client.loop_start()
     mTopic = TOPIC + "/VVB/scheduleMode"
-    result = client.publish(TOPIC, fName, 0, True)
+    result = client.publish(mTopic, fName, 0, True)
     if result[0] == 0:
         logger.debug("Sendt %s to topic %s", fName, mTopic)
     else:
@@ -57,7 +57,7 @@ def updateMQTT(iniConf, logger, fName):
     return
 
 def main():
-    VERSION = "0.1.00"
+    VERSION = "0.1.10"
     script_name = os.path.basename(__file__).split('.')[0]
     lo = myLogger(script_name, VERSION)
     logger = lo.getLogger()
